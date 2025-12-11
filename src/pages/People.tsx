@@ -1,27 +1,36 @@
-import {
-    Clock,
-    Eye,
-    Gift,
-    Grid3X3,
-    List,
-    MoreHorizontal,
-    Plus,
-    Search,
-} from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../components/ui/button";
-import { Card } from "../components/ui/card";
+import { format } from "date-fns";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Calendar } from "@/components/ui/calendar";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+    Plus,
+    Search,
+    Grid3X3,
+    List,
+    Gift,
+    Calendar as CalendarIcon,
+    Clock,
+    Eye,
+    MoreHorizontal,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "../components/ui/dialog";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { cn } from "../lib/utils";
+    DialogDescription,
+} from "@/components/ui/dialog";
 
 const mockPeople = [
     {
@@ -90,6 +99,8 @@ export default function People() {
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [searchQuery, setSearchQuery] = useState("");
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+    const [selectedRelationship, setSelectedRelationship] = useState<string | null>(null);
+    const [birthdayDate, setBirthdayDate] = useState<Date>();
     const navigate = useNavigate();
 
     const filteredPeople = mockPeople.filter((person) =>
@@ -116,6 +127,9 @@ export default function People() {
                     <DialogContent className="glass-card border-white/[0.08]">
                         <DialogHeader>
                             <DialogTitle>Add New Person</DialogTitle>
+                            <DialogDescription>
+                                Add someone you want to remember and celebrate
+                            </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 mt-4">
                             <div className="space-y-2">
@@ -132,7 +146,11 @@ export default function People() {
                                         <Button
                                             key={rel}
                                             variant="outline"
-                                            className="bg-white/[0.02] border-white/[0.08] justify-start"
+                                            className={cn(
+                                                "bg-white/[0.02] border-white/[0.08] justify-start",
+                                                selectedRelationship === rel && "border-accent-pink/50 bg-accent-pink/10 text-accent-pink"
+                                            )}
+                                            onClick={() => setSelectedRelationship(rel)}
                                         >
                                             {rel}
                                         </Button>
@@ -141,11 +159,29 @@ export default function People() {
                             </div>
                             <div className="space-y-2">
                                 <Label>Birthday</Label>
-                                <Input
-                                    type="date"
-                                    className="bg-white/[0.02] border-white/[0.08]"
-                                />
-                                {/* <Calendar /> */}
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className={cn(
+                                                "w-full justify-start text-left font-normal bg-white/[0.02] border-white/[0.08]",
+                                                !birthdayDate && "text-muted-foreground"
+                                            )}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {birthdayDate ? format(birthdayDate, "PPP") : <span>Pick a date</span>}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0 bg-card border-border" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={birthdayDate}
+                                            onSelect={setBirthdayDate}
+                                            initialFocus
+                                            className="pointer-events-auto"
+                                        />
+                                    </PopoverContent>
+                                </Popover>
                             </div>
                             <Button
                                 className="w-full bg-gradient-to-r from-accent-pink to-accent-violet"
@@ -251,7 +287,7 @@ export default function People() {
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2 text-sm">
-                                                {/* <Calendar className="w-4 h-4 text-accent-teal" /> */}
+                                                <CalendarIcon className="w-4 h-4 text-accent-teal" />
                                                 <span>{person.nextEvent}</span>
                                             </div>
                                             <div

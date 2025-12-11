@@ -1,13 +1,20 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Switch } from "../components/ui/switch";
+import { format } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Calendar } from "@/components/ui/calendar";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
 import {
     Plus,
     Bell,
-    Calendar,
+    Calendar as CalendarIcon,
     Clock,
     Repeat,
     MessageSquare,
@@ -21,15 +28,16 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "../components/ui/dialog";
+    DialogDescription,
+} from "@/components/ui/dialog";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "../components/ui/select";
-import { cn } from "../lib/utils";
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 const mockReminders = [
     {
@@ -70,6 +78,8 @@ const recurrenceOptions = ["Once", "Daily", "Weekly", "Monthly", "Yearly"];
 export default function Reminders() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [reminders] = useState(mockReminders);
+    const [selectedDate, setSelectedDate] = useState<Date>();
+    const [selectedTime, setSelectedTime] = useState("09:00");
 
     return (
         <div className="p-6 lg:p-8 max-w-5xl mx-auto">
@@ -91,6 +101,9 @@ export default function Reminders() {
                     <DialogContent className="glass-card border-white/[0.08] max-w-lg">
                         <DialogHeader>
                             <DialogTitle>Create Reminder</DialogTitle>
+                            <DialogDescription>
+                                Set up a new reminder with AI-powered messaging
+                            </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-5 mt-4">
                             <div className="space-y-2">
@@ -104,17 +117,54 @@ export default function Reminders() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label>Date</Label>
-                                    <Input
-                                        type="date"
-                                        className="bg-white/[0.02] border-white/[0.08]"
-                                    />
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                className={cn(
+                                                    "w-full justify-start text-left font-normal bg-white/[0.02] border-white/[0.08]",
+                                                    !selectedDate && "text-muted-foreground"
+                                                )}
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0 bg-card border-border" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={selectedDate}
+                                                onSelect={setSelectedDate}
+                                                initialFocus
+                                                className="pointer-events-auto"
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Time</Label>
-                                    <Input
-                                        type="time"
-                                        className="bg-white/[0.02] border-white/[0.08]"
-                                    />
+                                    <Select value={selectedTime} onValueChange={setSelectedTime}>
+                                        <SelectTrigger className="bg-white/[0.02] border-white/[0.08]">
+                                            <Clock className="mr-2 h-4 w-4" />
+                                            <SelectValue placeholder="Select time" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-card border-border max-h-60">
+                                            {Array.from({ length: 24 }, (_, hour) =>
+                                                ["00", "30"].map((min) => {
+                                                    const time = `${hour.toString().padStart(2, "0")}:${min}`;
+                                                    const displayTime = format(
+                                                        new Date(`2024-01-01T${time}`),
+                                                        "h:mm a"
+                                                    );
+                                                    return (
+                                                        <SelectItem key={time} value={time}>
+                                                            {displayTime}
+                                                        </SelectItem>
+                                                    );
+                                                })
+                                            )}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
 
@@ -124,7 +174,7 @@ export default function Reminders() {
                                     <SelectTrigger className="bg-white/[0.02] border-white/[0.08]">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="glass-card border-white/[0.08]">
+                                    <SelectContent className="bg-card border-border">
                                         {recurrenceOptions.map((opt) => (
                                             <SelectItem key={opt} value={opt.toLowerCase()}>
                                                 {opt}
@@ -140,7 +190,7 @@ export default function Reminders() {
                                     <SelectTrigger className="bg-white/[0.02] border-white/[0.08]">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="glass-card border-white/[0.08]">
+                                    <SelectContent className="bg-card border-border">
                                         {toneOptions.map((tone) => (
                                             <SelectItem key={tone} value={tone.toLowerCase()}>
                                                 {tone}
@@ -190,7 +240,7 @@ export default function Reminders() {
                 <Card className="glass-card border-white/[0.08]">
                     <CardContent className="p-4 flex items-center gap-4">
                         <div className="w-12 h-12 rounded-xl bg-accent-teal/10 flex items-center justify-center">
-                            <Calendar className="w-6 h-6 text-accent-teal" />
+                            <CalendarIcon className="w-6 h-6 text-accent-teal" />
                         </div>
                         <div>
                             <p className="text-2xl font-bold">2</p>
@@ -236,7 +286,7 @@ export default function Reminders() {
                                 </div>
                                 <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
                                     <span className="flex items-center gap-1">
-                                        <Calendar className="w-3.5 h-3.5" />
+                                        <CalendarIcon className="w-3.5 h-3.5" />
                                         {reminder.date}
                                     </span>
                                     <span className="flex items-center gap-1">

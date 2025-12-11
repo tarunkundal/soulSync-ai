@@ -1,19 +1,17 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Card } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
 import {
-    Plus,
-    Search,
-    Grid3X3,
-    List,
-    Gift,
     Clock,
     Eye,
+    Gift,
+    Grid3X3,
+    List,
     MoreHorizontal,
+    Plus,
+    Search,
 } from "lucide-react";
-import { cn } from "../lib/utils";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Card } from "../components/ui/card";
 import {
     Dialog,
     DialogContent,
@@ -21,8 +19,9 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "../components/ui/dialog";
+import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { Calendar } from "@/components/ui/calendar";
+import { cn } from "../lib/utils";
 
 const mockPeople = [
     {
@@ -142,11 +141,11 @@ export default function People() {
                             </div>
                             <div className="space-y-2">
                                 <Label>Birthday</Label>
-                                {/* <Input
+                                <Input
                                     type="date"
                                     className="bg-white/[0.02] border-white/[0.08]"
-                                /> */}
-                                <Calendar />
+                                />
+                                {/* <Calendar /> */}
                             </div>
                             <Button
                                 className="w-full bg-gradient-to-r from-accent-pink to-accent-violet"
@@ -252,7 +251,7 @@ export default function People() {
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2 text-sm">
-                                                <Calendar className="w-4 h-4 text-accent-teal" />
+                                                {/* <Calendar className="w-4 h-4 text-accent-teal" /> */}
                                                 <span>{person.nextEvent}</span>
                                             </div>
                                             <div

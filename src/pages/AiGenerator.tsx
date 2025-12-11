@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Slider } from "../components/ui/slider";
-import { Label } from "../components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
 import {
     Sparkles,
     MessageSquare,
@@ -15,7 +15,7 @@ import {
     Check,
     Download,
 } from "lucide-react";
-import { cn } from "../lib/utils";
+import { cn } from "@/lib/utils";
 
 const messageStyles = [
     { id: "funny", label: "Funny", emoji: "😄" },
@@ -52,7 +52,7 @@ export default function AIGenerator() {
     const [generatedMessage, setGeneratedMessage] = useState(mockGeneratedMessage);
     const [isGenerating, setIsGenerating] = useState(false);
     const [copied, setCopied] = useState(false);
-    const [selectedTemplate, setSelectedTemplate] = useState(1);
+    const [selectedTemplate, setSelectedTemplate] = useState(3);
 
     const handleGenerate = () => {
         setIsGenerating(true);

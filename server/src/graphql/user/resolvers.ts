@@ -45,11 +45,12 @@ const mutations = {
         if (error || !data.session || !data.user) {
             throw new Error("Invalid credentials");
         }
+        console.log('login server', data);
 
         // 🍪 Set secure cookie
         ctx.res.cookie("session", data.session.access_token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
+            // secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
             maxAge: 1000 * 60 * 60 * 24 * 7,
         });

@@ -4,5 +4,5 @@ import { useQuery } from '@apollo/client/react';
 export const useMe = () => {
     const { data, loading, error } = useQuery(MeQueryDocument);
 
-    return { user: data?.me, loading, error };
+    return { user: data?.me, loading, isAuthenticated: !!data?.me, error };
 };

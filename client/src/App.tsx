@@ -14,37 +14,39 @@ import WhatsAppSettings from "./pages/WhatsAppSettings";
 import Settings from "./pages/Settings";
 import { AppLayout } from "./components/layout/AppLayout";
 import NotFound from "./pages/NotFound";
-
+import AuthProvider from "./routes/auth/Auth";
+import ProtectedRoutes from "./routes/auth/ProtectedRoutes";
 
 const App = () => (
-  // <QueryClientProvider client={queryClient}>
   <TooltipProvider>
     <Toaster />
     <Sonner />
     <BrowserRouter>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Index />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/onboarding" element={<Onboarding />} />
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
 
-        {/* App Routes (with sidebar layout) */}
-        <Route element={<AppLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/people" element={<People />} />
-          <Route path="/people/:id" element={<PersonProfile />} />
-          <Route path="/reminders" element={<Reminders />} />
-          <Route path="/ai-generator" element={<AIGenerator />} />
-          <Route path="/whatsapp" element={<WhatsAppSettings />} />
-          <Route path="/settings" element={<Settings />} />
-        </Route>
+          <Route element={<ProtectedRoutes />}>
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route element={<AppLayout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/people" element={<People />} />
+              <Route path="/people/:id" element={<PersonProfile />} />
+              <Route path="/reminders" element={<Reminders />} />
+              <Route path="/ai-generator" element={<AIGenerator />} />
+              <Route path="/whatsapp" element={<WhatsAppSettings />} />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
 
-        {/* Catch-all */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          </Route>
+
+          {/* Catch-all */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   </TooltipProvider>
-  // </QueryClientProvider>
 );
 
 export default App;

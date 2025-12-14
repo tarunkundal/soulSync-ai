@@ -1,3 +1,6 @@
+import { LoginDocument, MeQueryDocument, SignUpDocument } from "@/graphql/generated/graphql";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation } from "@apollo/client/react";
 import { ChromeIcon, Github, Lock, Mail, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -10,11 +13,40 @@ export default function Auth() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
+    const { toast } = useToast()
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const [signUpMutation, { loading: signupLoading }] = useMutation(SignUpDocument)
+    const [loginMutation, { loading: loginLoading }] = useMutation(LoginDocument, {
+        refetchQueries: [{ query: MeQueryDocument }],
+    })
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // navigate("/onboarding");
+        if (!isLogin) {
+            try {
+                await signUpMutation({
+                    variables: { email, password },
+                });
+                toast({ title: "Account created successfully!" });
+                setIsLogin(true);
+            } catch (error) {
+                console.error("Signup failed:", error);
+                toast({ title: "Signup failed", description: error.message, variant: "destructive" });
+            }
+        } else {
+            try {
+                const res = await loginMutation({
+                    variables: { email, password }
+                });
+                if (res.data.login.id) {
+                    navigate("/onboarding");
+                }
+            } catch (error) {
+                console.error("Login failed:", error);
+                toast({ title: "Login failed", description: error.message, variant: "destructive" });
+            }
+        }
     };
 
     const handleSocialLogin = (provider: string) => {
@@ -91,6 +123,7 @@ export default function Auth() {
                                     id="email"
                                     type="email"
                                     placeholder="you@example.com"
+                                    required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="pl-10 bg-white/[0.02] border-white/[0.08] focus:border-accent-pink/50"
@@ -105,6 +138,7 @@ export default function Auth() {
                                 <Input
                                     id="password"
                                     type="password"
+                                    required
                                     placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
@@ -115,6 +149,7 @@ export default function Auth() {
 
                         <Button
                             type="submit"
+                            disabled={signupLoading || loginLoading}
                             className="w-full bg-gradient-to-r from-accent-pink to-accent-violet hover:opacity-90 shadow-[0_0_20px_rgba(236,72,153,0.3)]"
                         >
                             {isLogin ? "Sign In" : "Create Account"}
@@ -123,12 +158,13 @@ export default function Auth() {
 
                     <p className="text-center text-sm text-muted-foreground mt-6">
                         {isLogin ? "Don't have an account? " : "Already have an account? "}
-                        <button
+                        <Button
                             onClick={() => setIsLogin(!isLogin)}
-                            className="text-accent-pink hover:text-accent-pink/80 font-medium"
+                            variant='link'
+                            size='sm'
                         >
                             {isLogin ? "Sign up" : "Sign in"}
-                        </button>
+                        </Button>
                     </p>
                 </div>
             </div>

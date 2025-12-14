@@ -1,12 +1,40 @@
-import express, { type Application, type Request, type Response } from "express"
+import "dotenv/config";
 
-const app: Application = express()
+import { expressMiddleware } from '@as-integrations/express4';
+import express, { type Application, type Request, type Response } from "express";
+import cookieParser from "cookie-parser";
+import { env } from "process";
+import cors from "cors";
+import createGraphqlApolloServer from './graphql/index.js';
+import { createContext } from './graphql/context.js';
 
-app.get('/', (req: Request, res: Response) => {
-    res.send('Hello World!')
-})
+async function init() {
+    const app: Application = express()
+    const PORT = Number(env.PORT) || 4000
 
-app.listen(4000, () => {
-    console.log('server running');
+    app.use(cookieParser());
+    app.use(express.json())
 
-})
+    app.use(
+        cors({
+            origin: "http://localhost:3000",
+            credentials: true,
+        })
+    );
+
+    app.get('/', (req: Request, res: Response) => {
+        res.send('Hello World!')
+    })
+
+    const gqlServer = await createGraphqlApolloServer()
+
+    app.use("/graphql", expressMiddleware(gqlServer, {
+        context: createContext
+    }))
+
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    })
+}
+
+init()

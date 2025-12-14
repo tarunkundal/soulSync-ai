@@ -1,4 +1,4 @@
-import { Chrome, Github, Lock, Mail, Sparkles } from "lucide-react";
+import { ChromeIcon, Github, Lock, Mail, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
@@ -13,7 +13,8 @@ export default function Auth() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        navigate("/onboarding");
+
+        // navigate("/onboarding");
     };
 
     const handleSocialLogin = (provider: string) => {
@@ -56,7 +57,7 @@ export default function Auth() {
                             className="bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.12]"
                             onClick={() => handleSocialLogin("google")}
                         >
-                            <Chrome className="w-4 h-4 mr-2" />
+                            <ChromeIcon className="w-4 h-4 mr-2 text-primary" />
                             Google
                         </Button>
                         <Button

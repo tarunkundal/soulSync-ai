@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import ROUTES from "@/routes";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function Auth() {
     const [isLogin, setIsLogin] = useState(true);
@@ -19,7 +21,7 @@ export default function Auth() {
     const [loginMutation, { loading: loginLoading }] = useMutation(LoginDocument, {
         refetchQueries: [{ query: MeQueryDocument }],
     })
-    const [getGoogleUrl] = useMutation(GoogleAuthUrlDocument)
+    const [getGoogleUrl, { loading: loggingWithGoogle }] = useMutation(GoogleAuthUrlDocument)
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,19 +34,16 @@ export default function Auth() {
                 toast({ title: "Account created successfully!" });
                 setIsLogin(true);
             } catch (error) {
-                console.error("Signup failed:", error);
                 toast({ title: "Signup failed", description: error.message, variant: "destructive" });
             }
         } else {
             try {
-                const res = await loginMutation({
+                await loginMutation({
                     variables: { email, password }
                 });
-                if (res.data.login.id) {
-                    navigate("/onboarding");
-                }
+                navigate(ROUTES.ONBOARDING);
+                toast({ title: "Login successfully!" });
             } catch (error) {
-                console.error("Login failed:", error);
                 toast({ title: "Login failed", description: error.message, variant: "destructive" });
             }
         }
@@ -52,7 +51,6 @@ export default function Auth() {
 
     // currently only implemented for google
     const handleSocialLogin = async (provider: string) => {
-        console.log(`Login with ${provider}`);
         const { data } = await getGoogleUrl();
         window.location.href = data.googleAuthUrl;
     };
@@ -89,10 +87,11 @@ export default function Auth() {
                     <div className="grid grid-cols-2 gap-3 mb-6">
                         <Button
                             variant="outline"
+                            disabled={loggingWithGoogle}
                             className="bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.12]"
                             onClick={() => handleSocialLogin("google")}
                         >
-                            <ChromeIcon className="w-4 h-4 mr-2 text-primary" />
+                            {loggingWithGoogle ? <Spinner /> : <ChromeIcon className="w-4 h-4 mr-2 text-primary" />}
                             Google
                         </Button>
                         <Button
@@ -155,8 +154,23 @@ export default function Auth() {
                             disabled={signupLoading || loginLoading}
                             className="w-full bg-gradient-to-r from-accent-pink to-accent-violet hover:opacity-90 shadow-[0_0_20px_rgba(236,72,153,0.3)]"
                         >
-                            {isLogin ? "Sign In" : "Create Account"}
+                            {isLogin ? (
+                                loginLoading ? (
+                                    <div className="flex items-center justify-center gap-2">
+                                        <Spinner text="Signing in..." />
+                                    </div>
+                                ) : (
+                                    "Sign In"
+                                )
+                            ) : signupLoading ? (
+                                <div className="flex items-center justify-center gap-2">
+                                    <Spinner text="Creating account..." />
+                                </div>
+                            ) : (
+                                "Create Account"
+                            )}
                         </Button>
+
                     </form>
 
                     <p className="text-center text-sm text-muted-foreground mt-6">

@@ -1,5 +1,5 @@
-import { prismaClient as prisma } from './../lib/db.js';
 import { type Request, type Response } from "express";
+import { prismaClient as prisma } from '../lib/db.js';
 import { supabaseAdmin } from "../lib/supabaseAdmin.js";
 
 export const createContext = async ({

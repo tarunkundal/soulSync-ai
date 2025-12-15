@@ -1,8 +1,8 @@
+import { SetSessionDocument } from "@/graphql/generated/graphql";
+import { useAuth } from "@/providers/AuthProvider";
+import { useMutation } from "@apollo/client/react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMutation } from "@apollo/client/react";
-import { SetSessionDocument } from "@/graphql/generated/graphql";
-import { useAuth } from "@/routes/auth/Auth";
 
 const AuthCallback = () => {
     const navigate = useNavigate();

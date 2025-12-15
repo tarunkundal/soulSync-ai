@@ -1,3 +1,4 @@
+import { Spinner } from "@/components/ui/spinner";
 import { MeQueryDocument } from "@/graphql/generated/graphql";
 import { useQuery } from "@apollo/client/react";
 import { createContext, ReactNode, useContext } from "react";
@@ -25,7 +26,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 refetch,
             }}
         >
-            {loading ? <div>Loading...</div> : children}
+            {loading ? <Spinner isFullPage /> : children}
         </AuthContext.Provider>
     );
 };

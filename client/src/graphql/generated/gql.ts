@@ -14,11 +14,11 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-    "mutation SignUp($email: String!, $password: String!) {\n  signUp(email: $email, password: $password)\n}\n\nmutation Login($email: String!, $password: String!) {\n  login(email: $email, password: $password) {\n    id\n    email\n  }\n}\n\nmutation Logout {\n  logout\n}": typeof types.SignUpDocument,
+    "mutation SignUp($email: String!, $password: String!) {\n  signUp(email: $email, password: $password)\n}\n\nmutation Login($email: String!, $password: String!) {\n  login(email: $email, password: $password) {\n    id\n    email\n  }\n}\n\nmutation SetSession($token: String!) {\n  setSession(token: $token)\n}\n\nmutation GoogleAuthUrl {\n  googleAuthUrl\n}\n\nmutation Logout {\n  logout\n}": typeof types.SignUpDocument,
     "query MeQuery {\n  me {\n    id\n    email\n    fullName\n  }\n}": typeof types.MeQueryDocument,
 };
 const documents: Documents = {
-    "mutation SignUp($email: String!, $password: String!) {\n  signUp(email: $email, password: $password)\n}\n\nmutation Login($email: String!, $password: String!) {\n  login(email: $email, password: $password) {\n    id\n    email\n  }\n}\n\nmutation Logout {\n  logout\n}": types.SignUpDocument,
+    "mutation SignUp($email: String!, $password: String!) {\n  signUp(email: $email, password: $password)\n}\n\nmutation Login($email: String!, $password: String!) {\n  login(email: $email, password: $password) {\n    id\n    email\n  }\n}\n\nmutation SetSession($token: String!) {\n  setSession(token: $token)\n}\n\nmutation GoogleAuthUrl {\n  googleAuthUrl\n}\n\nmutation Logout {\n  logout\n}": types.SignUpDocument,
     "query MeQuery {\n  me {\n    id\n    email\n    fullName\n  }\n}": types.MeQueryDocument,
 };
 
@@ -39,7 +39,7 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "mutation SignUp($email: String!, $password: String!) {\n  signUp(email: $email, password: $password)\n}\n\nmutation Login($email: String!, $password: String!) {\n  login(email: $email, password: $password) {\n    id\n    email\n  }\n}\n\nmutation Logout {\n  logout\n}"): (typeof documents)["mutation SignUp($email: String!, $password: String!) {\n  signUp(email: $email, password: $password)\n}\n\nmutation Login($email: String!, $password: String!) {\n  login(email: $email, password: $password) {\n    id\n    email\n  }\n}\n\nmutation Logout {\n  logout\n}"];
+export function graphql(source: "mutation SignUp($email: String!, $password: String!) {\n  signUp(email: $email, password: $password)\n}\n\nmutation Login($email: String!, $password: String!) {\n  login(email: $email, password: $password) {\n    id\n    email\n  }\n}\n\nmutation SetSession($token: String!) {\n  setSession(token: $token)\n}\n\nmutation GoogleAuthUrl {\n  googleAuthUrl\n}\n\nmutation Logout {\n  logout\n}"): (typeof documents)["mutation SignUp($email: String!, $password: String!) {\n  signUp(email: $email, password: $password)\n}\n\nmutation Login($email: String!, $password: String!) {\n  login(email: $email, password: $password) {\n    id\n    email\n  }\n}\n\nmutation SetSession($token: String!) {\n  setSession(token: $token)\n}\n\nmutation GoogleAuthUrl {\n  googleAuthUrl\n}\n\nmutation Logout {\n  logout\n}"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

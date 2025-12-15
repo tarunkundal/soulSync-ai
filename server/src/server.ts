@@ -22,6 +22,12 @@ async function init() {
         })
     );
 
+    app.get("/auth/callback", async (_req, res) => {
+        // Just redirect to frontend callback page
+        res.redirect("http://localhost:3000/auth/callback");
+    });
+
+
     app.get('/', (req: Request, res: Response) => {
         res.send('Hello World!')
     })

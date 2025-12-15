@@ -1,12 +1,12 @@
 import "dotenv/config";
 
 import { expressMiddleware } from '@as-integrations/express4';
-import express, { type Application, type Request, type Response } from "express";
 import cookieParser from "cookie-parser";
-import { env } from "process";
 import cors from "cors";
-import createGraphqlApolloServer from './graphql/index.js';
+import express, { type Application, type Request, type Response } from "express";
+import { env } from "process";
 import { createContext } from './graphql/context.js';
+import createGraphqlApolloServer from './graphql/index.js';
 
 async function init() {
     const app: Application = express()

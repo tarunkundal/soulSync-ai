@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "./Auth";
+import { useAuth } from "../../providers/AuthProvider";
+import ROUTES from "..";
 
 const PublicRoute = ({ children }: { children: JSX.Element }) => {
     const { loading, isAuthenticated } = useAuth();
@@ -7,7 +8,7 @@ const PublicRoute = ({ children }: { children: JSX.Element }) => {
     if (loading) return null;
 
     if (isAuthenticated) {
-        return <Navigate to="/dashboard" replace />;
+        return <Navigate to={ROUTES.DASHBOARD} replace />;
     }
 
     return children;

@@ -1,7 +1,10 @@
 import { Sparkles } from "lucide-react";
 import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
+import ROUTES from "@/routes";
 
 const Navbar = () => {
+    const navigate = useNavigate();
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 border-b border-border/50 bg-black">
             <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -19,10 +22,10 @@ const Navbar = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <Button variant="ghost" size="sm" className="hidden sm:flex">
+                    <Button variant='heroOutline' size="sm" className="hidden sm:flex" onClick={() => navigate(ROUTES.AUTH)}>
                         Sign In
                     </Button>
-                    <Button variant="hero" size="sm">
+                    <Button variant="hero" size="sm" onClick={() => navigate(ROUTES.AUTH)}>
                         Get Started
                     </Button>
                 </div>

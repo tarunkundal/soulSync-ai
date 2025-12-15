@@ -1,9 +1,12 @@
 import { Button } from "../../components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
 import useScrollReveal from "../../hooks/useScrollReveal";
+import { useNavigate } from "react-router-dom";
+import ROUTES from "@/routes";
 
 const FinalCTA = () => {
     const { ref, isVisible } = useScrollReveal();
+    const navigate = useNavigate()
 
     return (
         <section className="relative py-24 overflow-hidden">
@@ -45,7 +48,7 @@ const FinalCTA = () => {
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                            <Button variant="hero" size="xl" className="w-full sm:w-auto">
+                            <Button variant="hero" size="xl" className="w-full sm:w-auto" onClick={() => navigate(ROUTES.AUTH)}>
                                 Get Started Free
                                 <ArrowRight className="w-5 h-5" />
                             </Button>

@@ -1,4 +1,5 @@
-import { useAuth } from "@/routes/auth/Auth";
+import { useAuth } from "@/providers/AuthProvider";
+import { Navigate } from "react-router-dom";
 import Features from "../components/landing/Features";
 import FinalCTA from "../components/landing/FinalCTA";
 import Footer from "../components/landing/Footer";
@@ -9,7 +10,6 @@ import Navbar from "../components/landing/Navbar";
 import Pricing from "../components/landing/Pricing";
 import ProblemStatement from "../components/landing/ProblemStatement";
 import Testimonials from "../components/landing/Testmonials";
-import { Navigate } from "react-router-dom";
 
 
 const Index = () => {

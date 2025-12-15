@@ -1,10 +1,7 @@
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Select,
     SelectContent,
@@ -12,16 +9,25 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LogoutDocument, MeQueryDocument } from "@/graphql/generated/graphql";
+import { useToast } from "@/hooks/use-toast";
+import ROUTES from "@/routes";
+import { useMutation } from "@apollo/client/react";
 import {
-    User,
-    Globe,
     Bell,
-    Palette,
-    Shield,
+    Globe,
     LogOut,
+    Palette,
     Save,
+    Shield,
     Trash2,
+    User,
 } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const timezones = [
     "America/New_York",
@@ -43,10 +49,15 @@ const languages = [
 ];
 
 export default function Settings() {
+    const { toast } = useToast()
+    const navigate = useNavigate()
     const [name, setName] = useState("John Doe");
     const [email, setEmail] = useState("john@example.com");
     const [timezone, setTimezone] = useState("America/New_York");
     const [language, setLanguage] = useState("en");
+    const [logoutMutation, { loading }] = useMutation(LogoutDocument, {
+        refetchQueries: [{ query: MeQueryDocument }],
+    })
 
     const [notifications, setNotifications] = useState({
         email: true,
@@ -54,6 +65,16 @@ export default function Settings() {
         sms: false,
         reminders: true,
     });
+
+    const handleLogoutHandler = async () => {
+        try {
+            await logoutMutation()
+            navigate(ROUTES.INDEX)
+            toast({ title: "Logout successfully!" });
+        } catch (error) {
+            toast({ title: "Logout failed", description: error.message, variant: "destructive" });
+        }
+    }
 
     return (
         <div className="p-6 lg:p-8 max-w-4xl mx-auto">
@@ -163,9 +184,11 @@ export default function Settings() {
                             </Button>
                             <Button
                                 variant="outline"
+                                disabled={loading}
                                 className="w-full md:w-auto bg-white/[0.02] border-white/[0.08] ml-0 md:ml-3"
+                                onClick={handleLogoutHandler}
                             >
-                                <LogOut className="w-4 h-4 mr-2" />
+                                {loading ? <Spinner /> : <LogOut className="w-4 h-4 mr-2" />}
                                 Sign Out
                             </Button>
                         </CardContent>

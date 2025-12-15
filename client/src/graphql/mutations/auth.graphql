@@ -10,6 +10,13 @@
     }
   }
 
+  mutation SetSession($token: String!) {
+  setSession(token: $token)
+}
+
+  mutation GoogleAuthUrl {
+    googleAuthUrl
+  }
 
   mutation Logout {
     logout

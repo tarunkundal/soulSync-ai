@@ -1,26 +1,38 @@
 import { MeQueryDocument } from "@/graphql/generated/graphql";
 import { useQuery } from "@apollo/client/react";
-import { ReactNode } from "react";
+import { createContext, ReactNode, useContext } from "react";
 
-type Props = {
-    children: ReactNode;
+type AuthContextType = {
+    user: unknown | null;
+    loading: boolean;
+    isAuthenticated: boolean;
+    refetch: () => void;
 };
 
-const AuthProvider = ({ children }: Props) => {
-    const { data, loading } = useQuery(MeQueryDocument)
+const AuthContext = createContext<AuthContextType | null>(null);
 
-    console.log('datata', data);
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+    const { data, loading, refetch } = useQuery(MeQueryDocument, {
+        fetchPolicy: "network-only",
+    });
 
-
-    if (loading) {
-        return (
-            <div style={{ display: "flex", justifyContent: "center", marginTop: "20%" }}>
-                Loading...
-            </div>
-        );
-    }
-
-    return children;
+    return (
+        <AuthContext.Provider
+            value={{
+                user: data?.me ?? null,
+                loading,
+                isAuthenticated: !!data?.me,
+                refetch,
+            }}
+        >
+            {loading ? <div>Loading...</div> : children}
+        </AuthContext.Provider>
+    );
 };
 
-export default AuthProvider;
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAuth = () => {
+    const ctx = useContext(AuthContext);
+    if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+    return ctx;
+};

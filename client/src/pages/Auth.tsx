@@ -1,4 +1,4 @@
-import { LoginDocument, MeQueryDocument, SignUpDocument } from "@/graphql/generated/graphql";
+import { GoogleAuthUrlDocument, LoginDocument, MeQueryDocument, SignUpDocument } from "@/graphql/generated/graphql";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@apollo/client/react";
 import { ChromeIcon, Github, Lock, Mail, Sparkles } from "lucide-react";
@@ -19,6 +19,7 @@ export default function Auth() {
     const [loginMutation, { loading: loginLoading }] = useMutation(LoginDocument, {
         refetchQueries: [{ query: MeQueryDocument }],
     })
+    const [getGoogleUrl] = useMutation(GoogleAuthUrlDocument)
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -49,9 +50,11 @@ export default function Auth() {
         }
     };
 
-    const handleSocialLogin = (provider: string) => {
+    // currently only implemented for google
+    const handleSocialLogin = async (provider: string) => {
         console.log(`Login with ${provider}`);
-        navigate("/onboarding");
+        const { data } = await getGoogleUrl();
+        window.location.href = data.googleAuthUrl;
     };
 
     return (

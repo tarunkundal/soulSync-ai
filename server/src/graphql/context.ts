@@ -26,7 +26,7 @@ export const createContext = async ({
     });
 
     return {
-        user: dbUser, // Supabase user
+        user: dbUser,
         prisma,
         req,
         res,

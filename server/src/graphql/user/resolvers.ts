@@ -1,12 +1,16 @@
 import type { Context } from '../context.js';
+import type { MutationResolvers, QueryResolvers } from '../generated/serverTypes.js';
 import { supabaseAdmin } from './../../lib/supabaseAdmin.js';
 
-const queries = {
+const queries: QueryResolvers = {
     me: async (_: any, __: any, ctx: Context) => {
+        if (!ctx.user) {
+            throw new Error("Not authenticated");
+        }
         return ctx.user;
     },
 }
-const mutations = {
+const mutations: MutationResolvers = {
     signUp: async (
         _: any,
         { email, password }: { email: string; password: string },
@@ -56,6 +60,9 @@ const mutations = {
         const dbUser = await ctx.prisma.user.findUnique({
             where: { id: data.user.id },
         });
+        if (!dbUser) {
+            throw new Error("User not found in database");
+        }
 
         return dbUser;
     },

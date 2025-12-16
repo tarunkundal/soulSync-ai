@@ -13,7 +13,8 @@
     "build:server": "tsc -p server/tsconfig.json",
     "preview": "cd client && vite preview",
     "start": "node dist/server/.js",
-    "codegen": "graphql-codegen --config codegen.ts"
+    "codegen:client": "graphql-codegen --config codegen.ts",
+    "codegen:server": "graphql-codegen --config codegen.server.ts"
   },
   "dependencies": {
     "@apollo/client": "^4.0.10",
@@ -58,6 +59,7 @@
     "embla-carousel-react": "^8.6.0",
     "express": "^4.22.1",
     "graphql": "^16.12.0",
+    "graphql-scalars": "^1.25.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.462.0",
     "next-themes": "^0.3.0",
@@ -80,6 +82,7 @@
     "@graphql-codegen/client-preset": "^5.2.1",
     "@graphql-codegen/typescript": "^5.0.6",
     "@graphql-codegen/typescript-operations": "^5.0.6",
+    "@graphql-codegen/typescript-resolvers": "^5.1.4",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@tailwindcss/typography": "^0.5.16",
     "@types/cookie-parser": "^1.4.10",

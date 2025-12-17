@@ -1,112 +1,87 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Card } from "@/components/ui/card";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar } from "@/components/ui/calendar";
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import { GetAllPeopleDocument } from "@/graphql/generated/graphql";
+import { capitalizeFirst, getDaysLeft } from "@/lib/helpers";
+import { cn } from "@/lib/utils";
+import { useQuery } from "@apollo/client/react";
+import { format } from "date-fns";
 import {
-    Plus,
-    Search,
-    Grid3X3,
-    List,
-    Gift,
     Calendar as CalendarIcon,
     Clock,
     Eye,
+    Gift,
+    Grid3X3,
+    List,
     MoreHorizontal,
+    Plus,
+    Search,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-    DialogDescription,
-} from "@/components/ui/dialog";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const mockPeople = [
-    {
-        id: 1,
-        name: "Mom",
-        relationship: "Parent",
-        birthday: "Dec 8",
-        nextEvent: "Birthday",
-        daysLeft: 4,
-        avatar: "👩",
-        color: "accent-pink",
-    },
-    {
-        id: 2,
-        name: "John Smith",
-        relationship: "Colleague",
-        birthday: "Mar 15",
-        nextEvent: "Work Anniversary",
-        daysLeft: 8,
-        avatar: "👨",
-        color: "accent-lime",
-    },
-    {
-        id: 3,
-        name: "Sarah",
-        relationship: "Friend",
-        birthday: "Dec 15",
-        nextEvent: "Birthday",
-        daysLeft: 11,
-        avatar: "👧",
-        color: "accent-teal",
-    },
-    {
-        id: 4,
-        name: "Dad",
-        relationship: "Parent",
-        birthday: "Feb 20",
-        nextEvent: "Birthday",
-        daysLeft: 78,
-        avatar: "👴",
-        color: "accent-pink",
-    },
-    {
-        id: 5,
-        name: "Emily",
-        relationship: "Partner",
-        birthday: "Jun 10",
-        nextEvent: "Anniversary",
-        daysLeft: 188,
-        avatar: "💕",
-        color: "accent-violet",
-    },
-    {
-        id: 6,
-        name: "Alex",
-        relationship: "Friend",
-        birthday: "Jan 5",
-        nextEvent: "Birthday",
-        daysLeft: 32,
-        avatar: "🧑",
-        color: "accent-teal",
-    },
-];
+const relationshipGradient: Record<string, string> = {
+    friend: "from-accent-teal/20 to-accent-teal/5",
+    parent: "from-accent-pink/20 to-accent-pink/5",
+    partner: "from-accent-violet/20 to-accent-violet/5",
+    colleague: "from-accent-lime/20 to-accent-lime/5",
+};
+const relationshipColors: Record<string, string> = { friend: "accent-teal", parent: "accent-pink", partner: "accent-violet", colleague: "accent-lime", };
+const relationshipAvatars: Record<string, string> = {
+    friend: "🧑",
+    parent: "👩‍🦳",
+    partner: "💕",
+    colleague: "👨‍💼",
+};
+
 
 export default function People() {
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [searchQuery, setSearchQuery] = useState("");
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-    const [selectedRelationship, setSelectedRelationship] = useState<string | null>(null);
-    const [birthdayDate, setBirthdayDate] = useState<Date>();
+    // const [birthdayDate, setBirthdayDate] = useState<Date>();
+    const [personData, setPersonData] = useState({
+        name: "",
+        relationshipType: "",
+        phoneNumber: "",
+        aiTonePreference: "",
+        whatsappEnabled: false,
+        birthdayDate: undefined as Date | undefined,
+    });
     const navigate = useNavigate();
 
-    const filteredPeople = mockPeople.filter((person) =>
+    // query to get all the people
+    const { data, loading, error } = useQuery(GetAllPeopleDocument)
+    const allPeople = data?.getAllPeople.people || []
+
+    console.log('allpeope', allPeople);
+
+
+    const filteredPeople = allPeople.filter((person) =>
         person.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
+    const handleNewPersonAdd = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        // Logic to add new person goes here
+        // setIsAddDialogOpen(false);
+        console.log('userdata', personData);
 
+    }
     return (
         <div className="p-6 lg:p-8 max-w-7xl mx-auto">
             {/* Header */}
@@ -131,65 +106,74 @@ export default function People() {
                                 Add someone you want to remember and celebrate
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="space-y-4 mt-4">
-                            <div className="space-y-2">
-                                <Label>Name</Label>
-                                <Input
-                                    placeholder="Enter name"
-                                    className="bg-white/[0.02] border-white/[0.08]"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Relationship</Label>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {["Friend", "Parent", "Partner", "Colleague"].map((rel) => (
-                                        <Button
-                                            key={rel}
-                                            variant="outline"
-                                            className={cn(
-                                                "bg-white/[0.02] border-white/[0.08] justify-start",
-                                                selectedRelationship === rel && "border-accent-pink/50 bg-accent-pink/10 text-accent-pink"
-                                            )}
-                                            onClick={() => setSelectedRelationship(rel)}
-                                        >
-                                            {rel}
-                                        </Button>
-                                    ))}
+                        <form onSubmit={handleNewPersonAdd}>
+                            <div className="space-y-4 mt-4">
+                                <div className="space-y-2">
+                                    <Label>Name</Label>
+                                    <Input
+                                        placeholder="Enter name"
+                                        className="bg-white/[0.02] border-white/[0.08]"
+                                        value={personData.name}
+                                        onChange={(e) =>
+                                            setPersonData({ ...personData, name: e.target.value })
+                                        }
+                                    />
                                 </div>
+                                <div className="space-y-2">
+                                    <Label>Relationship</Label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {["Friend", "Parent", "Partner", "Colleague"].map((rel) => (
+                                            <Button
+                                                key={rel}
+                                                variant="outline"
+                                                className={cn(
+                                                    "bg-white/[0.02] border-white/[0.08] justify-start",
+                                                    personData.relationshipType === rel && "border-accent-pink/50 bg-accent-pink/10 text-accent-pink"
+                                                )}
+                                                onClick={() => setPersonData({ ...personData, relationshipType: rel })}
+                                            >
+                                                {rel}
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Birthday</Label>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                className={cn(
+                                                    "w-full justify-start text-left font-normal bg-white/[0.02] border-white/[0.08]",
+                                                    !personData.birthdayDate && "text-muted-foreground"
+                                                )}
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {personData.birthdayDate ? format(personData.birthdayDate, "PPP") : <span>Pick a date</span>}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0 bg-card border-border" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={personData.birthdayDate}
+                                                onSelect={(date) => {
+                                                    setPersonData({ ...personData, birthdayDate: date || undefined });
+                                                }}
+                                                initialFocus
+                                                className="pointer-events-auto"
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+                                <Button
+                                    className="w-full bg-gradient-to-r from-accent-pink to-accent-violet"
+                                    onClick={() => setIsAddDialogOpen(false)}
+                                    type="submit"
+                                >
+                                    Add Person
+                                </Button>
                             </div>
-                            <div className="space-y-2">
-                                <Label>Birthday</Label>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            className={cn(
-                                                "w-full justify-start text-left font-normal bg-white/[0.02] border-white/[0.08]",
-                                                !birthdayDate && "text-muted-foreground"
-                                            )}
-                                        >
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {birthdayDate ? format(birthdayDate, "PPP") : <span>Pick a date</span>}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0 bg-card border-border" align="start">
-                                        <Calendar
-                                            mode="single"
-                                            selected={birthdayDate}
-                                            onSelect={setBirthdayDate}
-                                            initialFocus
-                                            className="pointer-events-auto"
-                                        />
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
-                            <Button
-                                className="w-full bg-gradient-to-r from-accent-pink to-accent-violet"
-                                onClick={() => setIsAddDialogOpen(false)}
-                            >
-                                Add Person
-                            </Button>
-                        </div>
+                        </form>
                     </DialogContent>
                 </Dialog>
             </div>
@@ -253,11 +237,11 @@ export default function People() {
                             <div
                                 className={cn(
                                     "w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center text-3xl",
-                                    `from-${person.color}/20 to-${person.color}/5`,
+                                    relationshipGradient[person.relationshipType.toLowerCase()],
                                     viewMode === "grid" && "mb-4"
                                 )}
                             >
-                                {person.avatar}
+                                {relationshipAvatars[person.relationshipType.toLowerCase() as keyof typeof relationshipAvatars]}
                             </div>
 
                             {/* Info */}
@@ -275,31 +259,31 @@ export default function People() {
                                         </Button>
                                     )}
                                 </div>
-                                <p className={cn("text-sm text-muted-foreground mb-3", `text-${person.color}`)}>
-                                    {person.relationship}
+                                <p className={cn("text-sm text-muted-foreground mb-3", `text-${relationshipColors[person.relationshipType]}`)}>
+                                    {capitalizeFirst(person.relationshipType)}
                                 </p>
 
                                 {viewMode === "grid" && (
                                     <>
                                         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                                             <Gift className="w-4 h-4" />
-                                            <span>Birthday: {person.birthday}</span>
+                                            <span>Birthday: {person.importantDates[0].dateValue as string}</span>
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2 text-sm">
                                                 <CalendarIcon className="w-4 h-4 text-accent-teal" />
-                                                <span>{person.nextEvent}</span>
+                                                <span>{person.importantDates?.[1]?.dateType ?? '-'}</span>
                                             </div>
                                             <div
                                                 className={cn(
                                                     "flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium",
-                                                    person.daysLeft <= 7
+                                                    getDaysLeft(person.importantDates[0].dateValue as string) <= 7
                                                         ? "bg-accent-pink/10 text-accent-pink"
                                                         : "bg-white/[0.06] text-muted-foreground"
                                                 )}
                                             >
                                                 <Clock className="w-3 h-3" />
-                                                {person.daysLeft}d
+                                                {getDaysLeft(person.importantDates[0].dateValue as string)}d
                                             </div>
                                         </div>
                                     </>
@@ -310,11 +294,11 @@ export default function People() {
                             {viewMode === "list" && (
                                 <>
                                     <div className="text-sm text-muted-foreground">
-                                        <p>{person.birthday}</p>
+                                        <p>{person.importantDates[0].dateValue as string}</p>
                                     </div>
                                     <div className="text-sm">
-                                        <p className="text-accent-teal">{person.nextEvent}</p>
-                                        <p className="text-muted-foreground">{person.daysLeft} days</p>
+                                        <p className="text-accent-teal">{person.importantDates?.[1]?.dateType ?? "-"}</p>
+                                        <p className="text-muted-foreground">{getDaysLeft(person.importantDates[0].dateValue as string)} days</p>
                                     </div>
                                     <Button
                                         variant="ghost"

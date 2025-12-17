@@ -29,11 +29,13 @@ model People {
   phoneNumber      String            @map("phone_number")
   aiTonePreference String            @map("ai_tone_preference")
   createdAt        DateTime          @default(now()) @map("created_at")
-  whatsappEnabled  Boolean?          @default(false) @map("whatsapp_enabled")
+  whatsappEnabled  Boolean           @default(false) @map("whatsapp_enabled")
   userId           String            @map("user_id") @db.Uuid
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   importantDates   Important_Dates[]
   messages         Messages[]
+
+  @@unique([userId, phoneNumber])
 }
 
 model Important_Dates {
@@ -44,6 +46,8 @@ model Important_Dates {
 
   personId String @map("person_id") @db.Uuid
   people   People @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([personId, dateType])
 }
 
 model User_Preferences {

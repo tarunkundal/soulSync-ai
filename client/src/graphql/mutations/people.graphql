@@ -1,0 +1,14 @@
+mutation AddPeople($input: CreatePeopleInput!) {
+    createPerson(input: $input) {
+      id
+      name
+      relationshipType
+      whatsappEnabled
+      importantDates {
+          dateValue,
+          dateType
+       }
+      phoneNumber 
+      aiTonePreference
+        }
+  }

@@ -20,17 +20,29 @@ export type Scalars = {
 
 export type CreatePeopleInput = {
   aiTonePreference: Scalars['String']['input'];
-  date: Scalars['Date']['input'];
+  importantDates: ImportantDateInput;
   name: Scalars['String']['input'];
   phoneNumber: Scalars['String']['input'];
   relationshipType: Scalars['String']['input'];
+  whatsappEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type GetAllPeopleResponse = {
+  __typename?: 'GetAllPeopleResponse';
+  people: Array<People>;
 };
 
 export type ImportantDate = {
   __typename?: 'ImportantDate';
   createdAt?: Maybe<Scalars['Date']['output']>;
+  dateType: Scalars['String']['output'];
   dateValue: Scalars['Date']['output'];
   id: Scalars['ID']['output'];
+};
+
+export type ImportantDateInput = {
+  dateType: Scalars['String']['input'];
+  dateValue: Scalars['Date']['input'];
 };
 
 export type Mutation = {
@@ -79,6 +91,7 @@ export type People = {
 
 export type Query = {
   __typename?: 'Query';
+  getAllPeople: GetAllPeopleResponse;
   me?: Maybe<User>;
 };
 
@@ -168,8 +181,10 @@ export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   CreatePeopleInput: CreatePeopleInput;
   Date: ResolverTypeWrapper<Scalars['Date']['output']>;
+  GetAllPeopleResponse: ResolverTypeWrapper<GetAllPeopleResponse>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   ImportantDate: ResolverTypeWrapper<ImportantDate>;
+  ImportantDateInput: ImportantDateInput;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
   People: ResolverTypeWrapper<People>;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
@@ -182,8 +197,10 @@ export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean']['output'];
   CreatePeopleInput: CreatePeopleInput;
   Date: Scalars['Date']['output'];
+  GetAllPeopleResponse: GetAllPeopleResponse;
   ID: Scalars['ID']['output'];
   ImportantDate: ImportantDate;
+  ImportantDateInput: ImportantDateInput;
   Mutation: Record<PropertyKey, never>;
   People: People;
   Query: Record<PropertyKey, never>;
@@ -195,8 +212,13 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'Date';
 }
 
+export type GetAllPeopleResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetAllPeopleResponse'] = ResolversParentTypes['GetAllPeopleResponse']> = ResolversObject<{
+  people?: Resolver<Array<ResolversTypes['People']>, ParentType, ContextType>;
+}>;
+
 export type ImportantDateResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ImportantDate'] = ResolversParentTypes['ImportantDate']> = ResolversObject<{
   createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  dateType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   dateValue?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
 }>;
@@ -222,6 +244,7 @@ export type PeopleResolvers<ContextType = Context, ParentType extends ResolversP
 }>;
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  getAllPeople?: Resolver<ResolversTypes['GetAllPeopleResponse'], ParentType, ContextType>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
 }>;
 
@@ -235,6 +258,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
 
 export type Resolvers<ContextType = Context> = ResolversObject<{
   Date?: GraphQLScalarType;
+  GetAllPeopleResponse?: GetAllPeopleResponseResolvers<ContextType>;
   ImportantDate?: ImportantDateResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   People?: PeopleResolvers<ContextType>;

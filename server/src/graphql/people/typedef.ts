@@ -10,10 +10,10 @@ scalar Date
 type People {
   id: ID!
   name: String!
-  relationshipType: String!
+  relationshipType: String! 
   phoneNumber: String
   aiTonePreference: String!
-  whatsappEnabled: Boolean!
+  whatsappEnabled: Boolean
   createdAt: Date
 
   importantDates: [ImportantDate!]!
@@ -22,16 +22,35 @@ type People {
 type ImportantDate {
   id: ID!
   dateValue: Date!
+  dateType: String!
   createdAt: Date
 }
+
+input ImportantDateInput {
+  dateValue: Date!
+  dateType: String!
+}
+
 
 input CreatePeopleInput {
   name: String!
   relationshipType: String!
-  date: Date!
   aiTonePreference: String!
   phoneNumber:String!
+  whatsappEnabled:Boolean
+  importantDates: ImportantDateInput!
 }
 
+type GetAllPeopleResponse {
+  people: [People!]!
+}
+
+input UpdatePeopleInput {
+  name: String
+  relationshipType: String
+  phoneNumber: String
+  aiTonePreference: String
+  whatsappEnabled: Boolean
+}
 
 `

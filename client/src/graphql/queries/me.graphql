@@ -5,3 +5,20 @@ query MeQuery {
     fullName
   }
 }
+
+query GetAllPeople {
+  getAllPeople {
+    people {
+      id
+      name
+      relationshipType
+      whatsappEnabled
+      importantDates {
+        dateValue
+        dateType
+      }
+      phoneNumber
+      aiTonePreference
+    }
+  }
+}

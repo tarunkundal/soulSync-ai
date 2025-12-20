@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
@@ -35,14 +36,14 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const relationshipGradient: Record<string, string> = {
+export const relationshipGradient: Record<string, string> = {
     friend: "from-accent-teal/20 to-accent-teal/5",
     parent: "from-accent-pink/20 to-accent-pink/5",
     partner: "from-accent-violet/20 to-accent-violet/5",
     colleague: "from-accent-lime/20 to-accent-lime/5",
 };
-const relationshipColors: Record<string, string> = { friend: "accent-teal", parent: "accent-pink", partner: "accent-violet", colleague: "accent-lime", };
-const relationshipAvatars: Record<string, string> = {
+export const relationshipColors: Record<string, string> = { friend: "accent-teal", parent: "accent-pink", partner: "accent-violet", colleague: "accent-lime", };
+export const relationshipAvatars: Record<string, string> = {
     friend: "🧑",
     parent: "👩‍🦳",
     partner: "💕",

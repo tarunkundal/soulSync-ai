@@ -12,3 +12,11 @@ mutation AddPeople($input: CreatePeopleInput!) {
       aiTonePreference
         }
   }
+
+mutation AddNewImportantDate($input: AddImportantDateInput!) {
+    addNewImportantDate(input: $input) {
+      id
+      dateValue
+      dateType
+    }
+  }

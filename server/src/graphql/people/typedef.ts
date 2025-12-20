@@ -31,7 +31,6 @@ input ImportantDateInput {
   dateType: String!
 }
 
-
 input CreatePeopleInput {
   name: String!
   relationshipType: String!
@@ -53,4 +52,20 @@ input UpdatePeopleInput {
   whatsappEnabled: Boolean
 }
 
+type GetPersonDetailsResponse {
+  person: People!
+}
+
+input AddImportantDateInput {
+  personId: ID!
+  dateValue: Date!
+  dateType: String!
+}
+
+# type Mutation {
+#   createPerson(input: CreatePeopleInput!): People!
+#   updatePerson(personId: ID!, input: UpdatePeopleInput!): People!
+#   deletePerson(personId: ID!): Boolean!
+#   addImportantDate(input: AddImportantDateInput!): ImportantDate!
+# }
 `

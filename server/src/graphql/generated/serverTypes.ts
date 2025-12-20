@@ -18,6 +18,12 @@ export type Scalars = {
   Date: { input: any; output: any; }
 };
 
+export type AddImportantDateInput = {
+  dateType: Scalars['String']['input'];
+  dateValue: Scalars['Date']['input'];
+  personId: Scalars['ID']['input'];
+};
+
 export type CreatePeopleInput = {
   aiTonePreference: Scalars['String']['input'];
   importantDates: ImportantDateInput;
@@ -30,6 +36,11 @@ export type CreatePeopleInput = {
 export type GetAllPeopleResponse = {
   __typename?: 'GetAllPeopleResponse';
   people: Array<People>;
+};
+
+export type GetPersonDetailsResponse = {
+  __typename?: 'GetPersonDetailsResponse';
+  person: People;
 };
 
 export type ImportantDate = {
@@ -47,12 +58,19 @@ export type ImportantDateInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  addNewImportantDate: ImportantDate;
   createPerson: People;
   googleAuthUrl: Scalars['String']['output'];
   login: User;
   logout: Scalars['Boolean']['output'];
   setSession: Scalars['Boolean']['output'];
   signUp: Scalars['Boolean']['output'];
+  updatePerson: People;
+};
+
+
+export type MutationAddNewImportantDateArgs = {
+  input: AddImportantDateInput;
 };
 
 
@@ -77,6 +95,12 @@ export type MutationSignUpArgs = {
   password: Scalars['String']['input'];
 };
 
+
+export type MutationUpdatePersonArgs = {
+  input: UpdatePeopleInput;
+  personId: Scalars['ID']['input'];
+};
+
 export type People = {
   __typename?: 'People';
   aiTonePreference: Scalars['String']['output'];
@@ -86,13 +110,27 @@ export type People = {
   name: Scalars['String']['output'];
   phoneNumber?: Maybe<Scalars['String']['output']>;
   relationshipType: Scalars['String']['output'];
-  whatsappEnabled: Scalars['Boolean']['output'];
+  whatsappEnabled?: Maybe<Scalars['Boolean']['output']>;
 };
 
 export type Query = {
   __typename?: 'Query';
   getAllPeople: GetAllPeopleResponse;
+  getPersonDetails: GetPersonDetailsResponse;
   me?: Maybe<User>;
+};
+
+
+export type QueryGetPersonDetailsArgs = {
+  personId: Scalars['ID']['input'];
+};
+
+export type UpdatePeopleInput = {
+  aiTonePreference?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  phoneNumber?: InputMaybe<Scalars['String']['input']>;
+  relationshipType?: InputMaybe<Scalars['String']['input']>;
+  whatsappEnabled?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type User = {
@@ -178,10 +216,12 @@ export type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = 
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
+  AddImportantDateInput: AddImportantDateInput;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   CreatePeopleInput: CreatePeopleInput;
   Date: ResolverTypeWrapper<Scalars['Date']['output']>;
   GetAllPeopleResponse: ResolverTypeWrapper<GetAllPeopleResponse>;
+  GetPersonDetailsResponse: ResolverTypeWrapper<GetPersonDetailsResponse>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   ImportantDate: ResolverTypeWrapper<ImportantDate>;
   ImportantDateInput: ImportantDateInput;
@@ -189,15 +229,18 @@ export type ResolversTypes = ResolversObject<{
   People: ResolverTypeWrapper<People>;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  UpdatePeopleInput: UpdatePeopleInput;
   User: ResolverTypeWrapper<User>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
+  AddImportantDateInput: AddImportantDateInput;
   Boolean: Scalars['Boolean']['output'];
   CreatePeopleInput: CreatePeopleInput;
   Date: Scalars['Date']['output'];
   GetAllPeopleResponse: GetAllPeopleResponse;
+  GetPersonDetailsResponse: GetPersonDetailsResponse;
   ID: Scalars['ID']['output'];
   ImportantDate: ImportantDate;
   ImportantDateInput: ImportantDateInput;
@@ -205,6 +248,7 @@ export type ResolversParentTypes = ResolversObject<{
   People: People;
   Query: Record<PropertyKey, never>;
   String: Scalars['String']['output'];
+  UpdatePeopleInput: UpdatePeopleInput;
   User: User;
 }>;
 
@@ -216,6 +260,10 @@ export type GetAllPeopleResponseResolvers<ContextType = Context, ParentType exte
   people?: Resolver<Array<ResolversTypes['People']>, ParentType, ContextType>;
 }>;
 
+export type GetPersonDetailsResponseResolvers<ContextType = Context, ParentType extends ResolversParentTypes['GetPersonDetailsResponse'] = ResolversParentTypes['GetPersonDetailsResponse']> = ResolversObject<{
+  person?: Resolver<ResolversTypes['People'], ParentType, ContextType>;
+}>;
+
 export type ImportantDateResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ImportantDate'] = ResolversParentTypes['ImportantDate']> = ResolversObject<{
   createdAt?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   dateType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -224,12 +272,14 @@ export type ImportantDateResolvers<ContextType = Context, ParentType extends Res
 }>;
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+  addNewImportantDate?: Resolver<ResolversTypes['ImportantDate'], ParentType, ContextType, RequireFields<MutationAddNewImportantDateArgs, 'input'>>;
   createPerson?: Resolver<ResolversTypes['People'], ParentType, ContextType, RequireFields<MutationCreatePersonArgs, 'input'>>;
   googleAuthUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   login?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   setSession?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSetSessionArgs, 'token'>>;
   signUp?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;
+  updatePerson?: Resolver<ResolversTypes['People'], ParentType, ContextType, RequireFields<MutationUpdatePersonArgs, 'input' | 'personId'>>;
 }>;
 
 export type PeopleResolvers<ContextType = Context, ParentType extends ResolversParentTypes['People'] = ResolversParentTypes['People']> = ResolversObject<{
@@ -240,11 +290,12 @@ export type PeopleResolvers<ContextType = Context, ParentType extends ResolversP
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phoneNumber?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   relationshipType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  whatsappEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  whatsappEnabled?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
 }>;
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   getAllPeople?: Resolver<ResolversTypes['GetAllPeopleResponse'], ParentType, ContextType>;
+  getPersonDetails?: Resolver<ResolversTypes['GetPersonDetailsResponse'], ParentType, ContextType, RequireFields<QueryGetPersonDetailsArgs, 'personId'>>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
 }>;
 
@@ -259,6 +310,7 @@ export type UserResolvers<ContextType = Context, ParentType extends ResolversPar
 export type Resolvers<ContextType = Context> = ResolversObject<{
   Date?: GraphQLScalarType;
   GetAllPeopleResponse?: GetAllPeopleResponseResolvers<ContextType>;
+  GetPersonDetailsResponse?: GetPersonDetailsResponseResolvers<ContextType>;
   ImportantDate?: ImportantDateResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   People?: PeopleResolvers<ContextType>;

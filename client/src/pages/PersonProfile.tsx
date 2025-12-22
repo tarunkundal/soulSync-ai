@@ -5,12 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
-import { GetPersonDetailsDocument } from "@/graphql/generated/graphql";
+import { GetPersonDetailsDocument, UpdatePersonDocument } from "@/graphql/generated/graphql";
 import { toast } from "@/hooks/use-toast";
 import { capitalizeFirst } from "@/lib/helpers";
 import { toneOptions } from "@/lib/static";
 import { cn } from "@/lib/utils";
-import { useQuery } from "@apollo/client/react";
+import { useMutation, useQuery } from "@apollo/client/react";
 import {
     ArrowLeft, Calendar,
     Clock,
@@ -61,6 +61,7 @@ export default function PersonProfile() {
         variables: { personId: personId as string },
         skip: !personId,
     })
+    const [updatePerson, { loading: updating }] = useMutation(UpdatePersonDocument);
     const personData = data?.getPersonDetails.person;
 
     const [selectedTone, setSelectedTone] = useState<string | null>(null);
@@ -71,13 +72,20 @@ export default function PersonProfile() {
 
     useEffect(() => {
         if (!personData) return;
-
         setSelectedTone(personData.aiTonePreference);
         setAutoSend(personData.whatsappEnabled);
         setWhatsappNumber(personData.phoneNumber);
     }, [personData]);
 
-    const handleSaveNumber = () => {
+    const handleSaveNumber = async () => {
+        await updatePerson({
+            variables: {
+                input: {
+                    personId,
+                    phoneNumber: tempNumber,
+                },
+            },
+        });
         setWhatsappNumber(tempNumber);
         setIsEditingNumber(false);
         toast({
@@ -85,6 +93,19 @@ export default function PersonProfile() {
             description: "The contact's WhatsApp number has been updated.",
         });
     };
+    const handleAiTonePreferenceChange = async (toneId: string) => {
+        setSelectedTone(toneId);
+        await updatePerson({
+            variables: {
+                input: {
+                    personId,
+                    aiTonePreference: toneId,
+                },
+            },
+        });
+
+        toast({ title: "AI tone updated" });
+    }
 
     if (loading) return <Spinner />
 
@@ -214,7 +235,7 @@ export default function PersonProfile() {
                             {toneOptions.map((tone) => (
                                 <button
                                     key={tone.id}
-                                    onClick={() => setSelectedTone(tone.id)}
+                                    onClick={() => handleAiTonePreferenceChange(tone.id)}
                                     className={cn(
                                         "w-full p-3 rounded-xl border transition-all text-left flex items-center gap-3",
                                         selectedTone === tone.id
@@ -284,7 +305,18 @@ export default function PersonProfile() {
                                 </div>
                                 <Switch
                                     checked={autoSend}
-                                    onCheckedChange={setAutoSend}
+                                    onCheckedChange={async (value) => {
+                                        setAutoSend(value);
+                                        await updatePerson({
+                                            variables: {
+                                                input: {
+                                                    personId,
+                                                    whatsappEnabled: value,
+                                                },
+                                            },
+                                        });
+                                        toast({ title: "WhatsApp automation updated" });
+                                    }}
                                     className="data-[state=checked]:bg-green-500"
                                 />
                             </div>

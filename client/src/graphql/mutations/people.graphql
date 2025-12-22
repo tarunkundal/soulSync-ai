@@ -20,3 +20,14 @@ mutation AddNewImportantDate($input: AddImportantDateInput!) {
       dateType
     }
   }
+
+mutation UpdatePerson($input: UpdatePersonInput!) {
+  updatePerson(input: $input) {
+    id
+    aiTonePreference
+    phoneNumber
+    whatsappEnabled
+    name
+    relationshipType
+  }
+}

@@ -1,10 +1,7 @@
 export const mutations = `#graphql
 createPerson(input:CreatePeopleInput!):People!
 
-updatePerson(
-    personId: ID!
-    input: UpdatePeopleInput!
-  ): People!
+updatePerson(input: UpdatePersonInput!): People!
 
 addNewImportantDate(input: AddImportantDateInput!): ImportantDate!
 `

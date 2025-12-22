@@ -1,6 +1,6 @@
 import { prismaClient } from "../../lib/db.js";
 import type { Context } from "../context.js";
-import type { MutationResolvers, QueryResolvers } from "../generated/serverTypes.js";
+import type { MutationResolvers, People, QueryResolvers } from "../generated/serverTypes.js";
 
 const queries: QueryResolvers = {
     getAllPeople: async (_: any, __: any, ctx: Context) => {
@@ -50,7 +50,6 @@ const mutations: MutationResolvers = {
             },
             include: { importantDates: true }
         })
-        console.log('crete user data', people)
         return people
     },
     addNewImportantDate: async (_: any, { input }, ctx: Context) => {
@@ -66,6 +65,24 @@ const mutations: MutationResolvers = {
             }
         })
         return importantDate
+    },
+    updatePerson: async (_: any, { input }, ctx: Context) => {
+        if (!ctx.user) {
+            throw new Error("Unauthorized");
+        }
+        const { personId, name, aiTonePreference, whatsappEnabled, relationshipType, phoneNumber } = input
+        const updatedPerson = await prismaClient.people.update({
+            where: { id: personId, userId: ctx.user?.id ?? "4bf53225-e061-4ea0-ad03-2e999d1a911f" },
+            data: {
+                ...(name !== null && { name }),
+                ...(relationshipType !== null && { relationshipType }),
+                ...(phoneNumber !== null && { phoneNumber }),
+                ...(aiTonePreference !== null && { aiTonePreference }),
+                ...(whatsappEnabled !== null && { whatsappEnabled }),
+            },
+            include: { importantDates: true }
+        })
+        return updatedPerson as unknown as People;
     }
 }
 

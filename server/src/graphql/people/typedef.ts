@@ -44,7 +44,8 @@ type GetAllPeopleResponse {
   people: [People!]!
 }
 
-input UpdatePeopleInput {
+input UpdatePersonInput {
+  personId: ID!
   name: String
   relationshipType: String
   phoneNumber: String

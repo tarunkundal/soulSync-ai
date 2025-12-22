@@ -97,8 +97,7 @@ export type MutationSignUpArgs = {
 
 
 export type MutationUpdatePersonArgs = {
-  input: UpdatePeopleInput;
-  personId: Scalars['ID']['input'];
+  input: UpdatePersonInput;
 };
 
 export type People = {
@@ -125,9 +124,10 @@ export type QueryGetPersonDetailsArgs = {
   personId: Scalars['ID']['input'];
 };
 
-export type UpdatePeopleInput = {
+export type UpdatePersonInput = {
   aiTonePreference?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  personId: Scalars['ID']['input'];
   phoneNumber?: InputMaybe<Scalars['String']['input']>;
   relationshipType?: InputMaybe<Scalars['String']['input']>;
   whatsappEnabled?: InputMaybe<Scalars['Boolean']['input']>;
@@ -229,7 +229,7 @@ export type ResolversTypes = ResolversObject<{
   People: ResolverTypeWrapper<People>;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
-  UpdatePeopleInput: UpdatePeopleInput;
+  UpdatePersonInput: UpdatePersonInput;
   User: ResolverTypeWrapper<User>;
 }>;
 
@@ -248,7 +248,7 @@ export type ResolversParentTypes = ResolversObject<{
   People: People;
   Query: Record<PropertyKey, never>;
   String: Scalars['String']['output'];
-  UpdatePeopleInput: UpdatePeopleInput;
+  UpdatePersonInput: UpdatePersonInput;
   User: User;
 }>;
 
@@ -279,7 +279,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   setSession?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSetSessionArgs, 'token'>>;
   signUp?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSignUpArgs, 'email' | 'password'>>;
-  updatePerson?: Resolver<ResolversTypes['People'], ParentType, ContextType, RequireFields<MutationUpdatePersonArgs, 'input' | 'personId'>>;
+  updatePerson?: Resolver<ResolversTypes['People'], ParentType, ContextType, RequireFields<MutationUpdatePersonArgs, 'input'>>;
 }>;
 
 export type PeopleResolvers<ContextType = Context, ParentType extends ResolversParentTypes['People'] = ResolversParentTypes['People']> = ResolversObject<{

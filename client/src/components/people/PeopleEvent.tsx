@@ -1,5 +1,5 @@
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { AddNewImportantDateDocument, GetPersonDetailsQuery } from '@/graphql/generated/graphql';
+import { AddNewImportantDateDocument, GetPersonDetailsDocument, GetPersonDetailsQuery } from '@/graphql/generated/graphql';
 import { useToast } from '@/hooks/use-toast';
 import { capitalizeFirst } from '@/lib/helpers';
 import { eventTypes } from '@/lib/static';
@@ -32,7 +32,10 @@ const PeopleEvent = ({ personId, personData }: PeopleEventProps) => {
     const [newEventRecurring, setNewEventRecurring] = useState(true);
     const [customEventName, setCustomEventName] = useState("");
 
-    const [addNewImportantDateMutation, { data: newImportantDate, loading: isEventLoading, error: eventError }] = useMutation(AddNewImportantDateDocument)
+    const [addNewImportantDateMutation, { data: newImportantDate, loading: isEventLoading, error: eventError }] = useMutation(AddNewImportantDateDocument, {
+        refetchQueries: [{ query: GetPersonDetailsDocument, variables: { personId } }],
+        awaitRefetchQueries: true,
+    })
 
     useEffect(() => {
         if (!personData) return;
@@ -89,6 +92,7 @@ const PeopleEvent = ({ personId, personData }: PeopleEventProps) => {
             setNewEventDate(undefined);
             setNewEventRecurring(true);
             setCustomEventName("");
+            setIsAddEventOpen(false)
             toast({
                 title: "Event added",
                 description: `${eventName} has been added to ${personData.name}'s important dates.`,

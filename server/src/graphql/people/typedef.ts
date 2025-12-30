@@ -35,7 +35,7 @@ input CreatePeopleInput {
   name: String!
   relationshipType: String!
   aiTonePreference: String!
-  phoneNumber:String!
+  phoneNumber:String
   whatsappEnabled:Boolean
   importantDates: ImportantDateInput!
 }

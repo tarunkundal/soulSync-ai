@@ -33,14 +33,17 @@ const queries: QueryResolvers = {
 const mutations: MutationResolvers = {
     createPerson: async (_: any, { input }, ctx: Context) => {
         const user_id = ctx.user?.id ?? "4bf53225-e061-4ea0-ad03-2e999d1a911f"
+        if (input.whatsappEnabled && !input.phoneNumber) {
+            throw new Error("Phone number required when WhatsApp is enabled");
+        }
         const people = await prismaClient.people.create({
             data: {
                 name: input.name,
                 relationshipType: input.relationshipType,
                 userId: user_id!,
-                aiTonePreference: input.aiTonePreference,
-                phoneNumber: input.phoneNumber,
-                whatsappEnabled: input.whatsappEnabled!,
+                aiTonePreference: input.aiTonePreference || "funny",
+                phoneNumber: input.phoneNumber ?? null,
+                whatsappEnabled: input.whatsappEnabled ?? false,
                 importantDates: {
                     create: {
                         dateValue: input.importantDates.dateValue,

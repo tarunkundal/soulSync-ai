@@ -28,7 +28,7 @@ export type CreatePeopleInput = {
   aiTonePreference: Scalars['String']['input'];
   importantDates: ImportantDateInput;
   name: Scalars['String']['input'];
-  phoneNumber: Scalars['String']['input'];
+  phoneNumber?: InputMaybe<Scalars['String']['input']>;
   relationshipType: Scalars['String']['input'];
   whatsappEnabled?: InputMaybe<Scalars['Boolean']['input']>;
 };

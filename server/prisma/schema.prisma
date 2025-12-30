@@ -26,7 +26,7 @@ model People {
   id               String            @id @default(uuid()) @db.Uuid
   name             String
   relationshipType String            @map("relationship_type")
-  phoneNumber      String            @map("phone_number")
+  phoneNumber      String?           @map("phone_number")
   aiTonePreference String            @map("ai_tone_preference")
   createdAt        DateTime          @default(now()) @map("created_at")
   whatsappEnabled  Boolean           @default(false) @map("whatsapp_enabled")

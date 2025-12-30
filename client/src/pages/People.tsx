@@ -1,4 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
+
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
@@ -17,10 +17,12 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import { GetAllPeopleDocument } from "@/graphql/generated/graphql";
+import { AddPeopleDocument, GetAllPeopleDocument } from "@/graphql/generated/graphql";
+import { toast } from "@/hooks/use-toast";
 import { capitalizeFirst, getDaysLeft } from "@/lib/helpers";
+import { relationshipAvatars, relationshipColors, relationshipGradient } from "@/lib/static";
 import { cn } from "@/lib/utils";
-import { useQuery } from "@apollo/client/react";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { format } from "date-fns";
 import {
     Calendar as CalendarIcon,
@@ -36,32 +38,13 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export const relationshipGradient: Record<string, string> = {
-    friend: "from-accent-teal/20 to-accent-teal/5",
-    parent: "from-accent-pink/20 to-accent-pink/5",
-    partner: "from-accent-violet/20 to-accent-violet/5",
-    colleague: "from-accent-lime/20 to-accent-lime/5",
-};
-export const relationshipColors: Record<string, string> = { friend: "accent-teal", parent: "accent-pink", partner: "accent-violet", colleague: "accent-lime", };
-export const relationshipAvatars: Record<string, string> = {
-    friend: "🧑",
-    parent: "👩‍🦳",
-    partner: "💕",
-    colleague: "👨‍💼",
-};
-
-
 export default function People() {
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [searchQuery, setSearchQuery] = useState("");
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-    // const [birthdayDate, setBirthdayDate] = useState<Date>();
     const [personData, setPersonData] = useState({
         name: "",
         relationshipType: "",
-        phoneNumber: "",
-        aiTonePreference: "",
-        whatsappEnabled: false,
         birthdayDate: undefined as Date | undefined,
     });
     const navigate = useNavigate();
@@ -70,19 +53,38 @@ export default function People() {
     const { data, loading, error } = useQuery(GetAllPeopleDocument)
     const allPeople = data?.getAllPeople.people || []
 
-    console.log('allpeope', allPeople);
-
-
     const filteredPeople = allPeople.filter((person) =>
         person.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    const handleNewPersonAdd = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        // Logic to add new person goes here
-        // setIsAddDialogOpen(false);
-        console.log('userdata', personData);
 
+    const [addNewPeopleMutation, { loading: newPersonAdding }] = useMutation(AddPeopleDocument, {
+        refetchQueries: [{ query: GetAllPeopleDocument }],
+    })
+
+    const handleNewPersonAdd = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        await addNewPeopleMutation({
+            variables: {
+                input: {
+                    name: personData.name,
+                    relationshipType: personData.relationshipType,
+                    aiTonePreference: "funny",
+                    phoneNumber: null,
+                    whatsappEnabled: false,
+                    importantDates: {
+                        dateValue: personData.birthdayDate?.toISOString().split('T')[0] || "",
+                        dateType: "Birthday"
+                    }
+                }
+            }
+        })
+        setIsAddDialogOpen(false);
+        toast({
+            title: "Person Added",
+            description: `${personData.name} has been added successfully.`,
+        });
     }
+
     return (
         <div className="p-6 lg:p-8 max-w-7xl mx-auto">
             {/* Header */}
@@ -126,12 +128,13 @@ export default function People() {
                                         {["Friend", "Parent", "Partner", "Colleague"].map((rel) => (
                                             <Button
                                                 key={rel}
+                                                type="button"
                                                 variant="outline"
                                                 className={cn(
                                                     "bg-white/[0.02] border-white/[0.08] justify-start",
                                                     personData.relationshipType === rel && "border-accent-pink/50 bg-accent-pink/10 text-accent-pink"
                                                 )}
-                                                onClick={() => setPersonData({ ...personData, relationshipType: rel })}
+                                                onClick={(e) => setPersonData({ ...personData, relationshipType: rel })}
                                             >
                                                 {rel}
                                             </Button>
@@ -170,6 +173,7 @@ export default function People() {
                                     className="w-full bg-gradient-to-r from-accent-pink to-accent-violet"
                                     onClick={() => setIsAddDialogOpen(false)}
                                     type="submit"
+                                    disabled={newPersonAdding || !personData.name || !personData.relationshipType || !personData.birthdayDate}
                                 >
                                     Add Person
                                 </Button>

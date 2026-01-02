@@ -10,6 +10,7 @@ const ROUTES = {
     AI_GENERATOR: '/ai-generator',
     SETTINGS: '/settings',
     WHATSAPP_SETTINGS: '/whatsapp',
+    WHATSAPP_CONNECT_LINK: 'https://wa.me/+14155238886?text=Hi',
 };
 
 export default ROUTES;

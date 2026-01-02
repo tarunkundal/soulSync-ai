@@ -36,8 +36,11 @@ const Hero = () => {
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start animate-fade-up-delay-3">
-                            <Button variant="hero" size="xl" className="w-full sm:w-auto" onClick={() => navigate(ROUTES.AUTH)}>
-                                Get Started
+                            <Button variant="hero" size="xl" className="w-full sm:w-auto" onClick={() => window.open(
+                                ROUTES.WHATSAPP_CONNECT_LINK,
+                                "_blank"
+                            )}>
+                                Connect to WhatsApp
                                 <ArrowRight className="w-5 h-5" />
                             </Button>
                             <Button variant="heroOutline" size="xl" className="w-full sm:w-auto">

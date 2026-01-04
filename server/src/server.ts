@@ -7,11 +7,13 @@ import express, { type Application, type Request, type Response } from "express"
 import { env } from "process";
 import { createContext } from './graphql/context.js';
 import createGraphqlApolloServer from './graphql/index.js';
+import whatsappWebhook from "./webhooks/whatsapp.js";
 
 async function init() {
     const app: Application = express()
     const PORT = Number(env.PORT) || 4000
 
+    app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());
     app.use(express.json())
 
@@ -21,6 +23,9 @@ async function init() {
             credentials: true,
         })
     );
+
+    // WhatsApp webhook
+    app.post("/webhooks/whatsapp", whatsappWebhook);
 
     app.get("/auth/callback", async (_req, res) => {
         // Just redirect to frontend callback page

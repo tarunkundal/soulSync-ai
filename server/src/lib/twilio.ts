@@ -5,9 +5,6 @@ const client = Twilio(
     process.env.TWILIO_AUTH_TOKEN!
 );
 
-/**
- * Send a WhatsApp message using Twilio
- */
 export async function sendWhatsAppMessage(
     to: string,
     message: string

@@ -29,6 +29,9 @@ export default async function whatsappWebhook(
         const from = req.body.From?.replace("whatsapp:", "");
         const message = req.body.Body?.trim();
 
+        console.log('/webhooks/whatsapp', from, message, req);
+
+
         if (!from || !message) {
             return res.sendStatus(200);
         }

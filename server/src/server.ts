@@ -32,7 +32,6 @@ async function init() {
         res.redirect("http://localhost:3000/auth/callback");
     });
 
-
     app.get('/', (req: Request, res: Response) => {
         res.send('Hello World!')
     })

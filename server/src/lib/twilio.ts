@@ -10,11 +10,12 @@ export async function sendWhatsAppMessage(
     message: string
 ) {
     try {
-        await client.messages.create({
+        const messageResponse = await client.messages.create({
             from: process.env.TWILIO_WHATSAPP_NUMBER!,
             to: `whatsapp:${to}`,
             body: message,
         });
+        console.log("WhatsApp message sent:", messageResponse);
     } catch (error) {
         console.error("Failed to send WhatsApp message:", error);
     }

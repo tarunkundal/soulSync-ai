@@ -1,5 +1,5 @@
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { llm } from "./llm.js";
+import { llm } from "./llm/index.js";
 
 const prompt = ChatPromptTemplate.fromTemplate(`
 You are a thoughtful assistant who writes short WhatsApp messages.
@@ -20,3 +20,5 @@ export async function generateBirthdayMessage({
 
     return response.content.toString();
 }
+
+

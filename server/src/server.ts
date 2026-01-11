@@ -8,6 +8,7 @@ import { env } from "process";
 import { createContext } from './graphql/context.js';
 import createGraphqlApolloServer from './graphql/index.js';
 import whatsappWebhook from "./webhooks/whatsapp.js";
+import { sendTodayEventMessages } from "./ai/sendTodayEventMessages.js";
 
 async function init() {
     const app: Application = express()
@@ -32,7 +33,8 @@ async function init() {
         res.redirect("http://localhost:3000/auth/callback");
     });
 
-    app.get('/', (req: Request, res: Response) => {
+    app.get('/', async (req: Request, res: Response) => {
+        await sendTodayEventMessages()
         res.send('Hello World!')
     })
 

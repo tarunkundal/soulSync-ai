@@ -19,6 +19,24 @@ export const relationSchema = z.object({
 export const dateSchema = z.object({
     dateValue: z.string(), // YYYY-MM-DD
 });
-export const toneSchema = z.object({
-    aiTonePreference: z.enum(["friendly", "formal", "humorous", "sentimental"]),
+
+export const aiToneSchema = z.object({
+    aiTone: z.enum([
+        "romantic",
+        "emotional",
+        "funny",
+        "professional",
+        "friendly",
+    ]),
+});
+
+
+export const eventTypeSchema = z.object({
+    eventType: z.enum([
+        "birthday",
+        "anniversary",
+        "wedding",
+        "graduation",
+        "other",
+    ]),
 });

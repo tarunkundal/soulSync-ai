@@ -5,10 +5,10 @@ import {
 } from "@prisma/client";
 import { type Request, type Response } from "express";
 import { extractStructured } from "../ai/llm/extract.js";
-import { dateSchema, personNameSchema, phoneSchema, relationSchema, userNameSchema } from "../ai/llm/schema.js";
+import { aiToneSchema, dateSchema, eventTypeSchema, personNameSchema, phoneSchema, relationSchema, userNameSchema } from "../ai/llm/schema.js";
 import { prismaClient } from "../lib/db.js";
 import { sendWhatsAppMessage } from "../lib/twilio.js";
-import { normalizePhone, resetConversation, tempStore, updateConversation } from "./helpers/whatsappHelpers.js";
+import { normalizeIndianPhone, resetConversation, tempStore, updateConversation } from "./helpers/whatsappHelpers.js";
 
 export default async function whatsappWebhook(
     req: Request,
@@ -22,7 +22,7 @@ export default async function whatsappWebhook(
 
 
         if (!from || !message) {
-            return res.sendStatus(200).send();
+            return res.sendStatus(200).end();
         }
 
         let user = await prismaClient.user.findUnique({
@@ -41,7 +41,7 @@ export default async function whatsappWebhook(
             });
 
             await sendWhatsAppMessage(from, "Hey 👋 What should I call you?");
-            return res.sendStatus(200).send();
+            return res.sendStatus(200).end();
         }
 
         // =========================
@@ -50,7 +50,7 @@ export default async function whatsappWebhook(
         if (user.onboardingStep !== OnboardingStep.READY) {
             const reply = await handleOnboarding(user.id, message);
             await sendWhatsAppMessage(from, reply);
-            return res.sendStatus(200).send();
+            return res.sendStatus(200).end();
         }
 
         // =========================
@@ -69,14 +69,14 @@ export default async function whatsappWebhook(
 
             tempStore.set(user.id, {});
             await sendWhatsAppMessage(from, "Sure 🙂 What’s the person’s name?");
-            return res.sendStatus(200).send();
+            return res.sendStatus(200).end();
         }
 
         if (lower === "cancel") {
             await resetConversation(user.id);
             tempStore.delete(user.id);
             await sendWhatsAppMessage(from, "❌ Action cancelled. You can type *Add person* anytime.");
-            return res.sendStatus(200).send();
+            return res.sendStatus(200).end();
         }
 
         // =========================
@@ -85,7 +85,7 @@ export default async function whatsappWebhook(
         if (user.conversationFlow === ConversationFlow.ADD_PERSON) {
             const reply = await handleAddPerson(user, message);
             await sendWhatsAppMessage(from, reply);
-            return res.sendStatus(200).send();
+            return res.sendStatus(200).end();
         }
 
         // =========================
@@ -96,10 +96,10 @@ export default async function whatsappWebhook(
             "I didn’t understand that 🤔\nType *Add person* to add someone."
         );
 
-        res.sendStatus(200).send();
+        res.sendStatus(200).end();
     } catch (error) {
         console.error("WhatsApp webhook error:", error);
-        res.sendStatus(200).send();
+        res.sendStatus(200).end();
     }
 }
 
@@ -156,7 +156,7 @@ async function handleAddPerson(user: any, message: string) {
             tempStore.set(user.id, temp);
 
             await updateConversation(user.id, ConversationStep.ASK_PERSON_PHONE);
-            return "Got it 👍 What’s their WhatsApp number? Please include the *Country Code* (eg: +91)";
+            return "Please share their * WhatsApp number * 📱\n\nJust the number is fine.\nI’ll automatically add the country code if needed or you can include the *Country Code* (eg: +91)";
         }
         case ConversationStep.ASK_PERSON_PHONE: {
             const result = await extractStructured({
@@ -164,22 +164,38 @@ async function handleAddPerson(user: any, message: string) {
                 question: "What’s their WhatsApp number?",
                 userMessage: message,
                 schema: phoneSchema,
-                formatInstructions: `{ "phoneNumber": "+911234567890"}`,
+                formatInstructions: `{ "phoneNumber": "string" }`,
             });
-            if (!result.ok) {
-                return "❌ Please provide a valid phone number with country code. Example: *+919876543210*.";
-            }
-            const { phoneNumber } = result.data;
-            const normalizedPhone = normalizePhone(phoneNumber);
 
-            if (!normalizedPhone) {
-                return "❌ Please enter a valid WhatsApp number. Example: *9876543210* or *+919876543210*.";
+            if (!result.ok) {
+                return (
+                    "Sorry 😕 I couldn’t understand that.\n\n" +
+                    "Please send a *10-digit WhatsApp number* (India 🇮🇳)."
+                );
             }
-            temp.phone = normalizedPhone;
+
+            const phoneResult = normalizeIndianPhone(result.data.phoneNumber);
+
+            if (!phoneResult.ok) {
+                return (
+                    "Hmm 🤔 that doesn’t look like a valid *WhatsApp number*.\n\n" +
+                    "Please send a *10-digit mobile number*."
+                );
+            }
+
+            temp.phone = phoneResult.phone;
             tempStore.set(user.id, temp);
 
             await updateConversation(user.id, ConversationStep.ASK_PERSON_RELATION);
-            return "How are they related to you? (friend, family, colleague)";
+
+            return (
+                "Got it ✅\n\n" +
+                "How are they related to you?\n" +
+                "• *Friend*\n" +
+                "• *Parent*\n" +
+                "• *Partner*\n" +
+                "• *Colleague*"
+            );
         }
         case ConversationStep.ASK_PERSON_RELATION: {
             const result = await extractStructured({
@@ -187,22 +203,42 @@ async function handleAddPerson(user: any, message: string) {
                 question: "How are they related to you?",
                 userMessage: message,
                 schema: relationSchema,
-                formatInstructions: `{ "relationshipType": "mother | father | friend | colleague | family"}`,
+                formatInstructions: `{ "relationshipType": "mother | father | friend | colleague | family | partner | spouse | sibling | other"}`,
             });
             if (!result.ok) {
-                return "❌ Please provide a valid relationship type (friend, family, colleague).";
+                return "❌ Please provide a valid relationship type (friend, parent, partner, colleague).";
             }
             const { relationshipType } = result.data;
             temp.relation = relationshipType;
             tempStore.set(user.id, temp);
 
-            await updateConversation(user.id, ConversationStep.ASK_PERSON_DATE);
-            return "What’s the important date? (YYYY-MM-DD)";
+            await updateConversation(user.id, ConversationStep.ASK_EVENT_TYPE);
+            return "Nice 👍 What kind of * event * you want to wish for ?\n\nFor example: \n• * Birthday *\n• * Anniversary *\n• * Meeting *\n• * Other *";
         }
-        case ConversationStep.ASK_PERSON_DATE: {
+        case ConversationStep.ASK_EVENT_TYPE: {
             const result = await extractStructured({
-                step: "ASK_PERSON_DATE",
-                question: "What’s the important date?",
+                step: "ASK_EVENT_TYPE",
+                question: "What is the event?",
+                userMessage: message,
+                schema: eventTypeSchema,
+                formatInstructions: `{ "eventType": "birthday | anniversary | wedding | graduation | other"}`,
+            });
+
+            if (!result.ok) {
+                return "❌ Please choose one: birthday, anniversary, wedding, graduation, other.";
+            }
+
+            temp.eventType = result.data.eventType;
+            tempStore.set(user.id, temp);
+
+            await updateConversation(user.id, ConversationStep.ASK_EVENT_DATE);
+            return "Got it 🎉 What’s the event date? (YYYY-MM-DD)";
+        }
+
+        case ConversationStep.ASK_EVENT_DATE: {
+            const result = await extractStructured({
+                step: "ASK_EVENT_DATE",
+                question: "What’s the event important date?",
                 userMessage: message,
                 schema: dateSchema,
                 formatInstructions: `{"dateValue": "YYYY-MM-DD"}`,
@@ -212,16 +248,38 @@ async function handleAddPerson(user: any, message: string) {
             }
             const { dateValue } = result.data;
             temp.date = dateValue;
+            await updateConversation(user.id, ConversationStep.ASK_AI_TONE);
+            return "How would you like the message to sound? 😊\n\nChoose a *tone*:\n• *Warm*\n• *Funny*\n• *Formal*\n• *Emotional*"
+        }
+        case ConversationStep.ASK_AI_TONE: {
+            const result = await extractStructured({
+                step: "ASK_AI_TONE",
+                question: "How should the message sound?",
+                userMessage: message,
+                schema: aiToneSchema,
+                formatInstructions: `{ "aiTone": "romantic | emotional | funny | professional | friendly"}`,
+            });
+
+            if (!result.ok) {
+                return "❌ Choose one tone: romantic, emotional, funny, professional, friendly.";
+            }
+
+            temp.aiTone = result.data.aiTone;
+            tempStore.set(user.id, temp);
+
             await updateConversation(user.id, ConversationStep.CONFIRM_PERSON);
 
             return `Please confirm 👇
                     Name: ${temp.name}
                     Phone: ${temp.phone}
                     Relation: ${temp.relation}
+                    Event: ${temp.eventType}
                     Date: ${temp.date}
+                    Tone: ${temp.aiTone}
 
                     Reply *Yes* to save or *Cancel*`;
         }
+
         case ConversationStep.CONFIRM_PERSON: {
             if (message.toLowerCase() !== "yes") {
                 await resetConversation(user.id);
@@ -234,11 +292,11 @@ async function handleAddPerson(user: any, message: string) {
                     name: temp.name!,
                     phoneNumber: temp.phone!,
                     relationshipType: temp.relation!,
-                    aiTonePreference: "friendly",
+                    aiTonePreference: temp.aiTone!,
                     userId: user.id,
                     importantDates: {
                         create: {
-                            dateType: "BIRTHDAY",
+                            dateType: temp.eventType!.toUpperCase(),
                             dateValue: new Date(temp.date!),
                         },
                     },
@@ -254,5 +312,3 @@ async function handleAddPerson(user: any, message: string) {
             return "Something went wrong 🤕 Please type *Add person* again.";
     }
 }
-
-

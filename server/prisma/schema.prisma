@@ -34,7 +34,10 @@ enum ConversationStep {
   ASK_PERSON_NAME
   ASK_PERSON_PHONE
   ASK_PERSON_RELATION
-  ASK_PERSON_DATE
+  ASK_PERSON_DATE // temporary, to be deleted later replaced by ASK_EVENT_DATE
+  ASK_EVENT_TYPE
+  ASK_EVENT_DATE
+  ASK_AI_TONE
   CONFIRM_PERSON
 }
 
@@ -113,5 +116,3 @@ model Messages {
   userId   String @map("user_id") @db.Uuid
   user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
-
-// reminder table to be setup in future

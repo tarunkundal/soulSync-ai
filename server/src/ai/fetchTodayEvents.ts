@@ -1,6 +1,6 @@
 import { prismaClient } from "../lib/db.js";
 
-export async function getTodayEvents() {
+export async function getAllEvents() {
     return prismaClient.important_Dates.findMany({
         include: {
             people: {
@@ -46,7 +46,7 @@ export function filterTodayUnsentEvents(events: any[]) {
 }
 
 export async function getTodayPendingEvents() {
-    const allEvents = await getTodayEvents();
+    const allEvents = await getAllEvents();
     const pendingEvents = filterTodayUnsentEvents(allEvents);
 
     console.log(

@@ -49,13 +49,13 @@ export async function getTodayPendingEvents() {
     const allEvents = await getAllEvents();
     const pendingEvents = filterTodayUnsentEvents(allEvents);
 
-    console.log(
-        "Events to send today:",
-        pendingEvents,
-        pendingEvents.length,
-        "out of",
-        allEvents.length
-    );
+    // console.log(
+    //     "Events to send today:",
+    //     pendingEvents,
+    //     pendingEvents.length,
+    //     "out of",
+    //     allEvents.length
+    // );
 
     return pendingEvents;
 }

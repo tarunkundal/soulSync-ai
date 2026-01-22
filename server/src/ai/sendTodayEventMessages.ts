@@ -10,7 +10,7 @@ export async function sendTodayEventMessages() {
         const person = event.people;
         const user = person.user;
 
-        // ❌ Skip if WhatsApp not enabled or phone missing
+        // Skip if WhatsApp not enabled or phone missing
         if (!person.phoneNumber) {
             continue;
         }
@@ -27,10 +27,10 @@ export async function sendTodayEventMessages() {
         console.log("Generated message:", message);
 
         try {
-            // 📤 Send WhatsApp
+            // Send WhatsApp
             await sendWhatsAppMessage(person.phoneNumber, message);
 
-            // ✅ Store SENT message
+            // Store SENT message
             await prismaClient.messages.create({
                 data: {
                     content: message,
@@ -45,7 +45,7 @@ export async function sendTodayEventMessages() {
         } catch (error) {
             console.error("Failed to send WhatsApp message:", error);
 
-            // // ❌ Store FAILED message
+            // Store FAILED message
             await prismaClient.messages.create({
                 data: {
                     content: message,

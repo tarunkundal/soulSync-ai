@@ -9,7 +9,7 @@ export const personNameSchema = z.object({
 });
 
 export const phoneSchema = z.object({
-    phoneNumber: z.string().regex(/^\+\d{10,15}$/),
+    phoneNumber: z.string().regex(/[\d+\s\-()]{10,}/),
 });
 
 export const relationSchema = z.object({

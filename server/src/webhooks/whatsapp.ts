@@ -20,7 +20,6 @@ export default async function whatsappWebhook(
 
         console.log('/webhooks/whatsapp', from, message);
 
-
         if (!from || !message) {
             return res.sendStatus(200).end();
         }
@@ -29,9 +28,7 @@ export default async function whatsappWebhook(
             where: { whatsappNumber: from },
         });
 
-        // =========================
         // 1️⃣ New user
-        // =========================
         if (!user) {
             user = await prismaClient.user.create({
                 data: {
@@ -44,18 +41,14 @@ export default async function whatsappWebhook(
             return res.sendStatus(200).end();
         }
 
-        // =========================
         // 2️⃣ Onboarding flow
-        // =========================
         if (user.onboardingStep !== OnboardingStep.READY) {
             const reply = await handleOnboarding(user.id, message);
             await sendWhatsAppMessage(from, reply);
             return res.sendStatus(200).end();
         }
 
-        // =========================
         // 3️⃣ Command handling
-        // =========================
         const lower = message.toLowerCase();
 
         if (lower === "add person") {
@@ -79,18 +72,14 @@ export default async function whatsappWebhook(
             return res.sendStatus(200).end();
         }
 
-        // =========================
         // 4️⃣ Conversation flow
-        // =========================
         if (user.conversationFlow === ConversationFlow.ADD_PERSON) {
             const reply = await handleAddPerson(user, message);
             await sendWhatsAppMessage(from, reply);
             return res.sendStatus(200).end();
         }
 
-        // =========================
         // 5️⃣ Default fallback
-        // =========================
         await sendWhatsAppMessage(
             from,
             "I didn’t understand that 🤔\nType *Add person* to add someone."
@@ -106,7 +95,6 @@ export default async function whatsappWebhook(
 /* =========================
    ONBOARDING HANDLER
 ========================= */
-
 async function handleOnboarding(userId: string, message: string) {
     const result = await extractStructured({
         step: "ASK_NAME",
@@ -166,6 +154,7 @@ async function handleAddPerson(user: any, message: string) {
                 schema: phoneSchema,
                 formatInstructions: `{ "phoneNumber": "string" }`,
             });
+            console.log('phone number ', result, message)
 
             if (!result.ok) {
                 return (
@@ -249,7 +238,7 @@ async function handleAddPerson(user: any, message: string) {
             const { dateValue } = result.data;
             temp.date = dateValue;
             await updateConversation(user.id, ConversationStep.ASK_AI_TONE);
-            return "How would you like the message to sound? 😊\n\nChoose a *tone*:\n• *Warm*\n• *Funny*\n• *Formal*\n• *Emotional*"
+            return "How would you like the message to sound? 😊\n\nChoose a *tone*:\n• *Warm*\n• *Funny*\n• *Formal*\n• *Emotional*\n• *Romantic*"
         }
         case ConversationStep.ASK_AI_TONE: {
             const result = await extractStructured({

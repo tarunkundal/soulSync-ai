@@ -1,6 +1,6 @@
 import { prismaClient } from "../lib/db.js";
 
-export async function getAllEvents() {
+async function getAllEvents() {
     return prismaClient.important_Dates.findMany({
         include: {
             people: {
@@ -20,7 +20,7 @@ function isSameMonthAndDay(date: Date, today: Date) {
     );
 }
 
-export function filterTodayUnsentEvents(events: any[]) {
+function filterTodayUnsentEvents(events: any[]) {
     const today = new Date();
     const currentYear = today.getUTCFullYear();
 

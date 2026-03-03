@@ -172,6 +172,19 @@ async function handleAddPerson(user: any, message: string) {
                 );
             }
 
+            // check if contact already exists for this user
+            const already = await prismaClient.people.findFirst({
+                where: { userId: user.id, phoneNumber: phoneResult.phone },
+            });
+            if (already) {
+                await resetConversation(user.id);
+                tempStore.delete(user.id);
+                return (
+                    "⚠️ You’ve already added someone with that WhatsApp number. " +
+                    "Type *Add person* to start over with a different contact."
+                );
+            }
+
             temp.phone = phoneResult.phone;
             tempStore.set(user.id, temp);
 
@@ -276,21 +289,50 @@ async function handleAddPerson(user: any, message: string) {
                 return "❌ Not saved. Type *Add person* to try again.";
             }
 
-            await prismaClient.people.create({
-                data: {
-                    name: temp.name!,
-                    phoneNumber: temp.phone!,
-                    relationshipType: temp.relation!,
-                    aiTonePreference: temp.aiTone!,
-                    userId: user.id,
-                    importantDates: {
-                        create: {
-                            dateType: temp.eventType!.toUpperCase(),
-                            dateValue: new Date(temp.date!),
+            // make sure we don't create a duplicate entry
+            const existing = await prismaClient.people.findFirst({
+                where: { userId: user.id, phoneNumber: temp.phone! },
+            });
+            if (existing) {
+                await resetConversation(user.id);
+                tempStore.delete(user.id);
+                return (
+                    "⚠️ You already added someone with that WhatsApp number. " +
+                    "Type *Add person* to try again with a different contact."
+                );
+            }
+
+            try {
+                await prismaClient.people.create({
+                    data: {
+                        name: temp.name!,
+                        phoneNumber: temp.phone!,
+                        relationshipType: temp.relation!,
+                        aiTonePreference: temp.aiTone!,
+                        userId: user.id,
+                        importantDates: {
+                            create: {
+                                dateType: temp.eventType!.toUpperCase(),
+                                dateValue: new Date(temp.date!),
+                            },
                         },
                     },
-                },
-            });
+                });
+            } catch (err: any) {
+                // catch unique constraint just in case our pre-check missed it
+                if (
+                    err?.code === "P2002" &&
+                    err?.meta?.target?.includes("phone_number")
+                ) {
+                    await resetConversation(user.id);
+                    tempStore.delete(user.id);
+                    return (
+                        "⚠️ That contact already exists for your account. " +
+                        "Type *Add person* if you want to add somebody else."
+                    );
+                }
+                throw err;
+            }
 
             await resetConversation(user.id);
             tempStore.delete(user.id);

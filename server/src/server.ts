@@ -5,10 +5,28 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { type Application, type Request, type Response } from "express";
 import { env } from "process";
+import { sendTodayEventMessages } from "./ai/sendTodayEventMessages.js";
 import { createContext } from './graphql/context.js';
 import createGraphqlApolloServer from './graphql/index.js';
+import { setupDLQHandlers } from "./queues/dlq.handler.js";
+import { setupGenerationProcessor } from "./queues/generation.processor.js";
+import { closeQueues } from "./queues/index.js";
+import { getDLQJobs, getQueueMetrics } from "./queues/metrics.js";
+import { setupSendingProcessor } from "./queues/sending.processor.js";
 import whatsappWebhook from "./webhooks/whatsapp.js";
-import { sendTodayEventMessages } from "./ai/sendTodayEventMessages.js";
+
+async function initializeQueues() {
+    try {
+        console.log("[Queues] Initializing queue processors...");
+        await setupGenerationProcessor();
+        await setupSendingProcessor();
+        await setupDLQHandlers();
+        console.log("[Queues] All processors initialized successfully");
+    } catch (error) {
+        console.error("[Queues] Error initializing queues:", error);
+        throw error;
+    }
+}
 
 async function init() {
     const app: Application = express()
@@ -25,6 +43,9 @@ async function init() {
         })
     );
 
+    // Initialize queue processors before starting server
+    await initializeQueues();
+
     // WhatsApp webhook
     app.post("/webhooks/whatsapp", whatsappWebhook);
 
@@ -33,9 +54,80 @@ async function init() {
         res.redirect("http://localhost:3000/auth/callback");
     });
 
+    // Main endpoint - Queue events for processing
     app.get('/', async (req: Request, res: Response) => {
-        await sendTodayEventMessages()
-        res.send('Hello World!')
+        try {
+            const jobIds = await sendTodayEventMessages();
+            res.json({
+                message: 'Event messages queued successfully',
+                jobsQueued: jobIds.length,
+                jobIds,
+            });
+        } catch (error) {
+            console.error('Error queueing messages:', error);
+            res.status(500).json({
+                error: 'Failed to queue messages',
+                message: error instanceof Error ? error.message : 'Unknown error',
+            });
+        }
+    })
+
+    // Queue Metrics Endpoint
+    app.get('/api/queue/metrics', async (_req: Request, res: Response) => {
+        try {
+            const metrics = await getQueueMetrics();
+            res.json({
+                status: 'OK',
+                metrics,
+                timestamp: new Date().toISOString(),
+            });
+        } catch (error) {
+            res.status(500).json({
+                error: 'Failed to fetch metrics',
+                message: error instanceof Error ? error.message : 'Unknown error',
+            });
+        }
+    })
+
+    // Dead Letter Queue Endpoint
+    app.get('/api/queue/dlq', async (req: Request, res: Response) => {
+        try {
+            const limit = parseInt(req.query.limit as string) || 50;
+            const dlqJobs = await getDLQJobs(limit);
+            res.json({
+                status: 'OK',
+                dlqJobCount: dlqJobs.length,
+                dlqJobs,
+                timestamp: new Date().toISOString(),
+            });
+        } catch (error) {
+            res.status(500).json({
+                error: 'Failed to fetch DLQ jobs',
+                message: error instanceof Error ? error.message : 'Unknown error',
+            });
+        }
+    })
+
+    // Health check endpoint
+    app.get('/api/health', async (_req: Request, res: Response) => {
+        try {
+            const metrics = await getQueueMetrics();
+            const isHealthy = 
+                metrics.generation.failed < 100 &&
+                metrics.sending.failed < 100 &&
+                metrics.dlq.total < 500;
+
+            res.status(isHealthy ? 200 : 503).json({
+                status: isHealthy ? 'HEALTHY' : 'DEGRADED',
+                metrics,
+                timestamp: new Date().toISOString(),
+            });
+        } catch (error) {
+            res.status(503).json({
+                status: 'UNHEALTHY',
+                error: error instanceof Error ? error.message : 'Unknown error',
+            });
+        }
     })
 
     const gqlServer = await createGraphqlApolloServer()
@@ -44,9 +136,29 @@ async function init() {
         context: createContext
     }))
 
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
-    })
+        console.log(`Queue Metrics: http://localhost:${PORT}/api/queue/metrics`);
+        console.log(`DLQ Status: http://localhost:${PORT}/api/queue/dlq`);
+        console.log(`Health Check: http://localhost:${PORT}/api/health`);
+    });
+
+    // Graceful shutdown
+    process.on("SIGTERM", async () => {
+        console.log("[Server] SIGTERM received, shutting down gracefully...");
+        server.close(async () => {
+            await closeQueues();
+            process.exit(0);
+        });
+    });
+
+    process.on("SIGINT", async () => {
+        console.log("[Server] SIGINT received, shutting down gracefully...");
+        server.close(async () => {
+            await closeQueues();
+            process.exit(0);
+        });
+    });
 }
 
 init()

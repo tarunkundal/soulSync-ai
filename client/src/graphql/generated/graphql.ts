@@ -136,7 +136,7 @@ export type UpdatePersonInput = {
 export type User = {
   __typename: 'User';
   createdAt: Maybe<Scalars['Date']['output']>;
-  email: Scalars['String']['output'];
+  email: Maybe<Scalars['String']['output']>;
   fullName: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   updatedAt: Maybe<Scalars['Date']['output']>;
@@ -156,7 +156,7 @@ export type LoginMutationVariables = Exact<{
 }>;
 
 
-export type LoginMutation = { login: { __typename: 'User', id: string, email: string } };
+export type LoginMutation = { login: { __typename: 'User', id: string, email: string | null } };
 
 export type SetSessionMutationVariables = Exact<{
   token: Scalars['String']['input'];
@@ -199,7 +199,7 @@ export type UpdatePersonMutation = { updatePerson: { __typename: 'People', id: s
 export type MeQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQueryQuery = { me: { __typename: 'User', id: string, email: string, fullName: string | null } | null };
+export type MeQueryQuery = { me: { __typename: 'User', id: string, email: string | null, fullName: string | null } | null };
 
 export type GetAllPeopleQueryVariables = Exact<{ [key: string]: never; }>;
 

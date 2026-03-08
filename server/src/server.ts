@@ -84,6 +84,11 @@ async function init() {
         res.json({ message: "Sucessfully server is running" })
     })
 
+    // health check for deployment
+    app.get("/health", (_req, res) => {
+        res.status(200).send("OK");
+    });
+
     // Queue Metrics Endpoint
     app.get('/api/queue/metrics', async (_req: Request, res: Response) => {
         try {

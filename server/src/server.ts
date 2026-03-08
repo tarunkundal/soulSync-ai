@@ -6,6 +6,7 @@ import cors from "cors";
 import express, { type Application, type Request, type Response } from "express";
 import { env } from "process";
 import { sendTodayEventMessages } from "./ai/sendTodayEventMessages.js";
+import './cron';
 import { createContext } from './graphql/context.js';
 import createGraphqlApolloServer from './graphql/index.js';
 import { setupDLQHandlers } from "./queues/dlq.handler.js";
@@ -14,7 +15,6 @@ import { closeQueues } from "./queues/index.js";
 import { getDLQJobs, getQueueMetrics } from "./queues/metrics.js";
 import { setupSendingProcessor } from "./queues/sending.processor.js";
 import whatsappWebhook from "./webhooks/whatsapp.js";
-import './cron';
 
 async function initializeQueues() {
     try {
@@ -45,7 +45,7 @@ async function init() {
     );
 
     // Initialize queue processors before starting server
-    await initializeQueues();
+    // await initializeQueues();
 
     // WhatsApp webhook
     app.post("/webhooks/whatsapp", whatsappWebhook);
@@ -158,6 +158,10 @@ async function init() {
         console.log(`Queue Metrics: http://localhost:${PORT}/api/queue/metrics`);
         console.log(`DLQ Status: http://localhost:${PORT}/api/queue/dlq`);
         console.log(`Health Check: http://localhost:${PORT}/api/health`);
+    });
+
+    initializeQueues().catch((err) => {
+        console.error("Queue initialization failed:", err);
     });
 
     // Graceful shutdown

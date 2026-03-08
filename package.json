@@ -10,7 +10,7 @@
     "dev:server": "tsx watch server/src/server.ts",
     "build": "npm run build:client && npm run build:server",
     "build:client": "cd client && vite build",
-    "build:server": "tsc -p server/tsconfig.json",
+    "build:server": "prisma generate && tsc -p server/tsconfig.json",
     "preview": "cd client && vite preview",
     "start": "node server/dist/server.js",
     "codegen:client": "graphql-codegen --config codegen.ts",

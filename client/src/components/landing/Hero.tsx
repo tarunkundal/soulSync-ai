@@ -1,8 +1,8 @@
+import aiOrb from "@/assets/ai-orb.png";
 import { Button } from "@/components/ui/button";
 import ROUTES from "@/routes";
 import { ArrowRight, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-// import aiOrb from "@/assets/ai";
 
 const Hero = () => {
     const navigate = useNavigate()
@@ -86,7 +86,7 @@ const Hero = () => {
 
                             {/* Main orb image */}
                             <img
-                                // src={aiOrb}
+                                src={aiOrb}
                                 alt="AI Assistant Orb"
                                 className="relative z-10 w-full h-full object-contain animate-float drop-shadow-2xl"
                             />

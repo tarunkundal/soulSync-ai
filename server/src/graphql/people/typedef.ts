@@ -3,7 +3,7 @@ scalar Date
 
   type User {
   id: ID!
-  email: String!
+  email: String
   fullName: String
 }
 

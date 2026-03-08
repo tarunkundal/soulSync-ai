@@ -1,23 +1,3 @@
-// import OpenAI from 'openai';
-
-// const openai = new OpenAI({
-//     apiKey: process.env.OPENAI_API_KEY
-// });
-
-// export async function transcribeAudio(audioUrl: string): Promise<string> {
-//     const response = await fetch(audioUrl);
-//     if (!response.ok) throw new Error('Failed to fetch audio');
-//     const audioBuffer = await response.arrayBuffer();
-//     const buffer = Buffer.from(audioBuffer);
-
-//     const transcription = await openai.audio.transcriptions.create({
-//         file: new File([buffer], 'audio.ogg', { type: 'audio/ogg' }),
-//         model: 'whisper-1',
-//         response_format: 'text',
-//     });
-//     return transcription;
-// }
-
 import OpenAI from "openai";
 import { toFile } from "openai/uploads";
 

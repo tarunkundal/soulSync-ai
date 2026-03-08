@@ -14,6 +14,7 @@ import { closeQueues } from "./queues/index.js";
 import { getDLQJobs, getQueueMetrics } from "./queues/metrics.js";
 import { setupSendingProcessor } from "./queues/sending.processor.js";
 import whatsappWebhook from "./webhooks/whatsapp.js";
+import './cron';
 
 async function initializeQueues() {
     try {
@@ -54,22 +55,33 @@ async function init() {
         res.redirect("http://localhost:3000/auth/callback");
     });
 
-    // Main endpoint - Queue events for processing
-    app.get('/', async (req: Request, res: Response) => {
+    // Endpoint for the supabase for the cron job if we want to handle it with the trigger based sql fron DB itself 
+    app.post("/cron/send-events", async (req: Request, res: Response) => {
+        if (req.headers["x-cron-secret"] !== process.env.CRON_SECRET) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+
         try {
             const jobIds = await sendTodayEventMessages();
+
             res.json({
-                message: 'Event messages queued successfully',
+                message: "Event messages queued successfully",
                 jobsQueued: jobIds.length,
                 jobIds,
             });
         } catch (error) {
-            console.error('Error queueing messages:', error);
+            console.error("Error queueing messages:", error);
+
             res.status(500).json({
-                error: 'Failed to queue messages',
-                message: error instanceof Error ? error.message : 'Unknown error',
+                error: "Failed to queue messages",
+                message: error instanceof Error ? error.message : "Unknown error",
             });
         }
+    });
+
+    // Main endpoint
+    app.get('/', async (req: Request, res: Response) => {
+        res.json({ message: "Sucessfully server is running" })
     })
 
     // Queue Metrics Endpoint
@@ -112,7 +124,7 @@ async function init() {
     app.get('/api/health', async (_req: Request, res: Response) => {
         try {
             const metrics = await getQueueMetrics();
-            const isHealthy = 
+            const isHealthy =
                 metrics.generation.failed < 100 &&
                 metrics.sending.failed < 100 &&
                 metrics.dlq.total < 500;

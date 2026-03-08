@@ -45,7 +45,7 @@ async function init() {
     );
 
     // Initialize queue processors before starting server
-    // await initializeQueues();
+    await initializeQueues();
 
     // WhatsApp webhook
     app.post("/webhooks/whatsapp", whatsappWebhook);
@@ -147,21 +147,26 @@ async function init() {
         }
     })
 
-    const gqlServer = await createGraphqlApolloServer()
+    // const gqlServer = await createGraphqlApolloServer()
+    // app.use("/graphql", expressMiddleware(gqlServer, {
+    //     context: createContext
+    // }))
 
-    app.use("/graphql", expressMiddleware(gqlServer, {
-        context: createContext
-    }))
+    try {
+        const gqlServer = await createGraphqlApolloServer();
+        app.use("/graphql", expressMiddleware(gqlServer, {
+            context: createContext
+        }));
+    } catch (error) {
+        console.error("[Server] Failed to initialize GraphQL server:", error);
+        process.exit(1);  // Force failure to surface in logs
+    }
 
     const server = app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
         console.log(`Queue Metrics: http://localhost:${PORT}/api/queue/metrics`);
         console.log(`DLQ Status: http://localhost:${PORT}/api/queue/dlq`);
         console.log(`Health Check: http://localhost:${PORT}/api/health`);
-    });
-
-    initializeQueues().catch((err) => {
-        console.error("Queue initialization failed:", err);
     });
 
     // Graceful shutdown

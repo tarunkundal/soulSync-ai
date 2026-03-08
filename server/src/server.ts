@@ -162,7 +162,7 @@ async function init() {
         process.exit(1);  // Force failure to surface in logs
     }
 
-    const server = app.listen(PORT, () => {
+    const server = app.listen(PORT, "0.0.0.0", () => {
         console.log(`Server is running on port ${PORT}`);
         console.log(`Queue Metrics: http://localhost:${PORT}/api/queue/metrics`);
         console.log(`DLQ Status: http://localhost:${PORT}/api/queue/dlq`);

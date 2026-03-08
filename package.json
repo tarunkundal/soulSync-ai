@@ -12,7 +12,7 @@
     "build:client": "cd client && vite build",
     "build:server": "prisma generate --schema=server/prisma/schema.prisma && tsc -p server/tsconfig.json",
     "preview": "cd client && vite preview",
-    "start": "node server/dist/server.js",
+    "start": "node dist/server/server.js",
     "codegen:client": "graphql-codegen --config codegen.ts",
     "codegen:server": "graphql-codegen --config codegen.server.ts"
   },

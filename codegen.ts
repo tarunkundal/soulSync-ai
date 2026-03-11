@@ -1,9 +1,10 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
+const client_uri = process.env.CLIENT_URL ? `${process.env.CLIENT_URL}/graphql` : "http://localhost:4000/graphql"
 
 const config: CodegenConfig = {
   // Use 'overwrite: true' if you want codegen to clear the output folder every time
   // overwrite: true, // You can remove this as the client-preset handles output management
-  schema: "http://localhost:4000/graphql",
+  schema: client_uri,
   // Matches all tsx/ts files in your src directory
   documents: ["client/src/**/*.{ts,tsx,graphql}"],
   ignoreNoDocuments: true,

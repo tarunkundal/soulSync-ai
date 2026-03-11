@@ -45,7 +45,7 @@ async function init() {
     );
 
     // Initialize queue processors before starting server
-    await initializeQueues();
+    // await initializeQueues();
 
     // WhatsApp webhook
     app.post("/webhooks/whatsapp", whatsappWebhook);
@@ -147,11 +147,6 @@ async function init() {
         }
     })
 
-    // const gqlServer = await createGraphqlApolloServer()
-    // app.use("/graphql", expressMiddleware(gqlServer, {
-    //     context: createContext
-    // }))
-
     try {
         const gqlServer = await createGraphqlApolloServer();
         app.use("/graphql", expressMiddleware(gqlServer, {
@@ -168,6 +163,15 @@ async function init() {
         console.log(`DLQ Status: http://localhost:${PORT}/api/queue/dlq`);
         console.log(`Health Check: http://localhost:${PORT}/api/health`);
     });
+
+    // initialize queues AFTER server starts
+    initializeQueues()
+        .then(() => {
+            console.log("[Queues] All processors initialized successfully");
+        })
+        .catch((err) => {
+            console.error("[Queues] Failed to initialize:", err);
+        });
 
     // Graceful shutdown
     process.on("SIGTERM", async () => {

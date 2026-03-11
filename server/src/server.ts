@@ -6,7 +6,7 @@ import cors from "cors";
 import express, { type Application, type Request, type Response } from "express";
 import { env } from "process";
 import { sendTodayEventMessages } from "./ai/sendTodayEventMessages.js";
-import './cron/index.js';
+import './cron/cron.js';
 import { createContext } from './graphql/context.js';
 import createGraphqlApolloServer from './graphql/index.js';
 import { setupDLQHandlers } from "./queues/dlq.handler.js";

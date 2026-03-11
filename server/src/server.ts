@@ -4,7 +4,6 @@ import { expressMiddleware } from '@as-integrations/express4';
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { type Application, type Request, type Response } from "express";
-import { env } from "process";
 import { sendTodayEventMessages } from "./ai/sendTodayEventMessages.js";
 import './cron/cron.js';
 import { createContext } from './graphql/context.js';
@@ -31,7 +30,7 @@ async function initializeQueues() {
 
 async function init() {
     const app: Application = express()
-    const PORT = Number(env.PORT) || 4000
+    const PORT = parseInt(process.env.PORT || "8080", 10)
 
     app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());
@@ -52,7 +51,7 @@ async function init() {
 
     app.get("/auth/callback", async (_req, res) => {
         // Just redirect to frontend callback page
-        res.redirect("http://localhost:3000/auth/callback");
+        res.redirect(`${process.env.CLIENT_URL}/auth/callback`);
     });
 
     // Endpoint for the supabase for the cron job if we want to handle it with the trigger based sql fron DB itself 

@@ -146,16 +146,6 @@ async function init() {
         }
     })
 
-    try {
-        const gqlServer = await createGraphqlApolloServer();
-        app.use("/graphql", expressMiddleware(gqlServer, {
-            context: createContext
-        }));
-    } catch (error) {
-        console.error("[Server] Failed to initialize GraphQL server:", error);
-        process.exit(1);  // Force failure to surface in logs
-    }
-
     const server = app.listen(PORT, "0.0.0.0", () => {
         console.log(`Server is running on port ${PORT}`);
         console.log(`Queue Metrics: http://localhost:${PORT}/api/queue/metrics`);
@@ -171,6 +161,16 @@ async function init() {
         .catch((err) => {
             console.error("[Queues] Failed to initialize:", err);
         });
+
+    try {
+        const gqlServer = await createGraphqlApolloServer();
+        app.use("/graphql", expressMiddleware(gqlServer, {
+            context: createContext
+        }));
+    } catch (error) {
+        console.error("[Server] Failed to initialize GraphQL server:", error);
+        process.exit(1);  // Force failure to surface in logs
+    }
 
     // Graceful shutdown
     process.on("SIGTERM", async () => {

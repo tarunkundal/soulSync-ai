@@ -191,3 +191,8 @@ async function init() {
 }
 
 init()
+
+
+
+// for local host we have to set this url in twilio When a message comes in
+// https://hanna-unprovoked-nonexpressively.ngrok-free.dev/webhooks/whatsapp

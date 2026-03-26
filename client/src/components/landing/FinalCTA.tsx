@@ -48,7 +48,12 @@ const FinalCTA = () => {
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                            <Button variant="hero" size="xl" className="w-full sm:w-auto" onClick={() => navigate(ROUTES.AUTH)}>
+                            <Button variant="hero" size="xl" className="w-full sm:w-auto"
+                                // onClick={() => navigate(ROUTES.AUTH)}
+                                onClick={() => window.open(
+                                    ROUTES.WHATSAPP_CONNECT_LINK,
+                                    "_blank"
+                                )}>
                                 Get Started Free
                                 <ArrowRight className="w-5 h-5" />
                             </Button>

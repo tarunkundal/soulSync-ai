@@ -2,6 +2,7 @@ import { Sparkles } from "lucide-react";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 import ROUTES from "@/routes";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -22,9 +23,25 @@ const Navbar = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <Button variant='heroOutline' size="sm" className="hidden sm:flex" onClick={() => navigate(ROUTES.AUTH)}>
-                        Sign In
-                    </Button>
+                    {/* 🔥 Disabled Sign In with Tooltip */}
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <span>
+                                <Button
+                                    variant="heroOutline"
+                                    size="sm"
+                                    className="hidden sm:flex cursor-not-allowed opacity-60"
+                                    disabled
+                                >
+                                    Sign In
+                                </Button>
+                            </span>
+                        </TooltipTrigger>
+
+                        <TooltipContent>
+                            Web app coming soon 🚀
+                        </TooltipContent>
+                    </Tooltip>
                     <Button variant="hero" size="sm" onClick={() => navigate(ROUTES.AUTH)}>
                         Get Started
                     </Button>

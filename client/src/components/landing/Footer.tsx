@@ -1,4 +1,4 @@
-import { Github, Instagram, Linkedin, Sparkles, Twitter } from "lucide-react";
+import { Instagram, MessageCircleIcon, Sparkles, Twitter } from "lucide-react";
 
 const Footer = () => {
     return (
@@ -21,13 +21,10 @@ const Footer = () => {
                                 <Twitter className="w-5 h-5 text-muted-foreground" />
                             </a>
                             <a href="#" className="w-10 h-10 rounded-lg bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors">
-                                <Linkedin className="w-5 h-5 text-muted-foreground" />
+                                <MessageCircleIcon className="w-5 h-5 text-muted-foreground" />
                             </a>
                             <a href="#" className="w-10 h-10 rounded-lg bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors">
                                 <Instagram className="w-5 h-5 text-muted-foreground" />
-                            </a>
-                            <a href="#" className="w-10 h-10 rounded-lg bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors">
-                                <Github className="w-5 h-5 text-muted-foreground" />
                             </a>
                         </div>
                     </div>
@@ -39,7 +36,7 @@ const Footer = () => {
                             <li><a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">Features</a></li>
                             <li><a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">Pricing</a></li>
                             <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Integrations</a></li>
-                            <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">API</a></li>
+                            {/* <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">API</a></li> */}
                         </ul>
                     </div>
 
@@ -47,8 +44,8 @@ const Footer = () => {
                         <h4 className="font-semibold text-foreground mb-4">Company</h4>
                         <ul className="space-y-3">
                             <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">About</a></li>
-                            <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Blog</a></li>
-                            <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Careers</a></li>
+                            {/* <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Blog</a></li>
+                            <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Careers</a></li> */}
                             <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Contact</a></li>
                         </ul>
                     </div>
@@ -57,7 +54,7 @@ const Footer = () => {
                 {/* Bottom */}
                 <div className="pt-8 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <p className="text-sm text-muted-foreground">
-                        © 2025 SoulSync AI. All rights reserved.
+                        © 2026 SoulSync AI. All rights reserved.
                     </p>
                     <div className="flex items-center gap-6 text-sm">
                         <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</a>

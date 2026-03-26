@@ -43,8 +43,16 @@ const Hero = () => {
                                 Connect to WhatsApp
                                 <ArrowRight className="w-5 h-5" />
                             </Button>
-                            <Button variant="heroOutline" size="xl" className="w-full sm:w-auto">
-                                <Play className="w-5 h-5" />
+                            <Button
+                                variant="hero"
+                                onClick={() =>
+                                    window.open(
+                                        "https://www.loom.com/share/8883287fdbdb4461a825e742c68a51ad",
+                                        "_blank"
+                                    )
+                                }
+                            >
+                                <Play className="w-5 h-5 mr-2" />
                                 Try a Demo
                             </Button>
                         </div>

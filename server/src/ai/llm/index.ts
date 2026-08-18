@@ -1,5 +1,5 @@
-import { ChatOpenAI } from "@langchain/openai";
 import { ChatGroq } from "@langchain/groq";
+import { ChatOpenAI } from "@langchain/openai";
 
 export const llm = new ChatOpenAI({
     model: "gpt-4o-mini",
@@ -8,7 +8,7 @@ export const llm = new ChatOpenAI({
 });
 
 export const groqModel = new ChatGroq({
-    model: "llama-3.1-8b-instant",
+    model: "openai/gpt-oss-20b",
     apiKey: process.env.GROQ_API_KEY!,
     temperature: 0,
 });
